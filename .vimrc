@@ -15,6 +15,9 @@ set clipboard^=unnamed,unnamedplus
 " Clear highlighting on return
 nnoremap <CR> :noh<CR><CR>
 
+" Highlight all search matches
+set hlsearch
+
 " Sane splits
 set splitbelow
 set splitright
@@ -33,6 +36,13 @@ au FocusGained,BufEnter * checktime
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = ","
+
+" Splits shortcuts
+nnoremap <C-Z> :vsplit<CR>
+nnoremap <C-X> :split<CR>
+
+" Quit shortcut
+nnoremap <C-A> :q<CR>
 
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
@@ -91,7 +101,7 @@ endif
 fun! VeribleFormat()
     silent execute "!" . g:verible_format . " --inplace " . bufname("%") . " &> /dev/null"
 endfun
-autocmd BufWritePost *.v :call VeribleFormat()
+autocmd BufWritePost *.v,*.sv :call VeribleFormat()
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
