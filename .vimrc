@@ -1,10 +1,17 @@
 " https://vim-jp.org/vimdoc-en/autocmd.html#autocmd-events
 
-" Colors
+" Terminal
 set term=xterm-256color
 set termguicolors
+
+" Theme
 colorscheme desert
 highlight SpellBad guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
+highlight LineNr guifg=Gray guibg=#2c2d27
+highlight Search guifg=Black guibg=Yellow
+highlight Visual guifg=Yellow guibg=Black
+" From the plugin 'machakann/vim-highlightedyank'
+highlight HighlightedyankRegion guifg=Black guibg=Yellow
 
 " Right margin
 set colorcolumn=80
@@ -75,11 +82,11 @@ set laststatus=2
 " Format the status line
 set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
 
-" Add a bit extra margin to the left
-set foldcolumn=1
+" Margin to the left
+set foldcolumn=0
 
 " Display line numbers
-:set number
+set number
 
 " Set spellfile to location that is guaranteed to exist, can be symlinked to
 " Dropbox or kept in Git.
@@ -153,6 +160,9 @@ Plug 'editorconfig/editorconfig-vim'
 " https://github.com/plasticboy/vim-markdown/blob/master/README.md
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+
+" Make the yanked region apparent
+Plug 'machakann/vim-highlightedyank'
 
 " Initialize plugin system
 call plug#end()
