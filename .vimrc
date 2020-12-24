@@ -1,6 +1,7 @@
 " https://vim-jp.org/vimdoc-en/autocmd.html#autocmd-events
 
 " Colors
+set term=xterm-256color
 set termguicolors
 colorscheme desert
 highlight SpellBad guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
