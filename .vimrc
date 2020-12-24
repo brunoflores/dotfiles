@@ -44,6 +44,9 @@ nnoremap <C-X> :split<CR>
 " Quit shortcut
 nnoremap <C-A> :q<CR>
 
+" Keep swap files away
+set directory=.swp/,~/.swp/,/tmp/
+
 " Set 7 lines to the cursor - when moving vertically using j/k
 set so=7
 
@@ -104,6 +107,10 @@ endfun
 autocmd BufWritePost *.v,*.sv :call VeribleFormat()
 
 
+" Configuration for https://github.com/plasticboy/vim-markdown/
+let g:vim_markdown_folding_disabled = 1
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Fast editing and reloading of vimrc configs
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -140,6 +147,11 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'rhysd/vim-grammarous'
 Plug 'editorconfig/editorconfig-vim'
+
+" The tabular plugin must come before vim-markdown.
+" https://github.com/plasticboy/vim-markdown/blob/master/README.md
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
 
 " Initialize plugin system
 call plug#end()
