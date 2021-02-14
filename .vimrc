@@ -4,18 +4,7 @@
 set term=xterm-256color
 set termguicolors
 
-" Theme
-colorscheme desert
-highlight SpellBad guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
-highlight LineNr guifg=Gray guibg=#2c2d27
-highlight Search guifg=Black guibg=Yellow
-highlight Visual guifg=Yellow guibg=Black
-" From the plugin 'machakann/vim-highlightedyank'
-highlight HighlightedyankRegion guifg=Black guibg=Yellow
-
-" Right margin
-set colorcolumn=80
-highlight ColorColumn ctermbg=236 guibg=#2c2d27
+set backspace=indent,eol,start
 
 " Clipboard
 set clipboard^=unnamed,unnamedplus
@@ -86,7 +75,8 @@ set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ 
 set foldcolumn=0
 
 " Display line numbers
-set number
+" set number
+set relativenumber
 
 " Set spellfile to location that is guaranteed to exist, can be symlinked to
 " Dropbox or kept in Git.
@@ -100,7 +90,26 @@ fun! CleanExtraSpaces()
     call setpos('.', save_cursor)
     call setreg('/', old_query)
 endfun
-autocmd BufWritePre *.md,*.txt,*.js,*.py,*.wiki,*.sh,*.coffee,*.v :call CleanExtraSpaces()
+autocmd BufWritePre *.md,*.txt,*.js,*.py,*.wiki,*.sh,*.coffee,*.v,*.sv,*.bsv :call CleanExtraSpaces()
+
+" Plugin https://github.com/SirVer/ultisnips
+" let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
+let g:UltiSnipsExpandTrigger="<c-space>"
+" let g:ulti_jump_forwards_res = 0
+" function! MySnipFun1()
+"   call UltiSnips#JumpForwards()
+"   return g:ulti_jump_forwards_res
+" endfunction
+" let g:ulti_jump_backwards_res = 0
+" function! MySnipFun2()
+"   call UltiSnips#JumpBackwards()
+"   return g:ulti_jump_backwards_res
+" endfunction
+" inoremap <c-j> <c-r>=MySnipFun1()<CR>
+" inoremap <c-k> <c-r>=MySnipFun2()<CR>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -153,6 +162,12 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
+" Plug 'Chiel92/vim-autoformat'
+
+" Haskell
+" Plug 'jaspervdj/stylish-haskell'
+" Plug 'nbouscal/vim-stylish-haskell'
+
 Plug 'rhysd/vim-grammarous'
 Plug 'editorconfig/editorconfig-vim'
 
@@ -164,8 +179,38 @@ Plug 'plasticboy/vim-markdown'
 " Make the yanked region apparent
 Plug 'machakann/vim-highlightedyank'
 
+Plug 'ycm-core/YouCompleteMe'
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+Plug 'ervandew/supertab'
+
+" Use release branch (recommend)
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" BlueSpec
+Plug 'mtikekar/vim-bsv'
+
 " Initialize plugin system
 call plug#end()
+
+
+
+" Theme
+colorscheme desert
+highlight SpellBad guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
+highlight LineNr guifg=Gray guibg=#2c2d27
+highlight Search guifg=Black guibg=Yellow
+highlight Visual guifg=Yellow guibg=Black
+highlight Pmenu guifg=grey guibg=black
+" From the plugin 'machakann/vim-highlightedyank'
+highlight HighlightedyankRegion guifg=Black guibg=Yellow
+
+
+" Right margin
+set colorcolumn=80
+highlight ColorColumn guibg=#2c2d27
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
