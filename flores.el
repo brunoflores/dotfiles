@@ -51,15 +51,18 @@
   :hook
   (prog-mode . git-gutter-mode)
   :config
-  (setq git-gutter:update-interval 0.02))
+  (setq git-gutter:update-interval 2))
 
+;; Here are some ideas for a different configuration using
+;; package git-gutter-fringe.el
+;; https://github.com/emacsorphanage/git-gutter-fringe
 ;(use-package git-gutter-fringe
 ;  :config
 ;  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
 ;  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
 ;  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
-
 ; (global-git-gutter-mode +1)
+
 (global-display-fill-column-indicator-mode t)
 
 ;; Enable auto-fill in org-mode.
