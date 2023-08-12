@@ -190,7 +190,7 @@
                           :height (cdr face))))
 
   (use-package org
-    :hook (org-mode-hook . org-mode-setup)
+    :hook (org-mode . org-mode-setup)
     :config
     (org-mode-font-setup)
     (setq org-ellipsis " ▾")
