@@ -45,8 +45,17 @@
 ;; Show column number at the bottom next to the line number.
 (column-number-mode t)
 
-; Always display fill column line.
+;; Always display fill column line.
 (global-display-fill-column-indicator-mode t)
+
+;; Refresh buffers automatically.
+(global-auto-revert-mode t)
+
+  ;; Save minibuffer history.
+(savehist-mode t)
+
+;; Save place in each file.
+(save-place-mode t)
 
 ;; Make ESC quit prompts.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -67,6 +76,8 @@
                            (add-hook 'after-save-hook
                                      #'org-babel-tangle-config)))
 
+(use-package company)
+
 (use-package ivy
   :diminish
   :bind (("C-s" . swiper)
@@ -86,7 +97,38 @@
   :config
   (ivy-prescient-mode 1))
 
-;; Package git-gutter.el
+(use-package projectile
+  :diminish
+  :config
+  (projectile-mode 1)
+  :custom
+  ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/devel")
+    (setq projectile-project-search-path '("~/devel")))
+  ; Open project in dired
+  (setq projectile-switch-project-action 'projectile-dired))
+
+(use-package ripgrep)
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (;; Enable languages here.
+         (tuareg-mode . lsp-deferred)
+         (shell-script-mode . lsp-deferred)))
+
+;; Show messages on the right-side margin.
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :hook (tuareg-mode . lsp-ui-sideline-mode)
+  :init
+  (setq lsp-ui-sideline-enable t))
+
+(use-package lsp-ivy
+  :commands lsp-ivy-workspace-symbol)
+
 ;; https://github.com/emacsorphanage/git-gutter
 (use-package git-gutter
   :diminish
@@ -107,10 +149,60 @@
   ;; Red
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
+(use-package magit
+  :custom
+  ; By default, Magit opens status in a new window.
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
 (use-package paredit
   :hook (lisp-mode . paredit-mode))
 
+(defun org-mode-setup ()
+  (org-indent-mode)
+  (auto-fill-mode)
+  (display-line-numbers-mode -1)
+  (display-fill-column-indicator-mode -1))
 
+  (defun org-mode-font-setup ()
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil
+                          :font "Cantarell" :weight 'regular
+                          :height (cdr face))))
+
+  (use-package org
+    :hook (org-mode-hook . org-mode-setup)
+    :config
+    (org-mode-font-setup)
+    (setq org-ellipsis " ▾")
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+    (setq org-hide-emphasis-markers t)
+    (setq org-agenda-files
+          '("~/devel/tasks.org")))
+
+  ;; Replace stars with utf-8 chars.
+  (use-package org-bullets
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+  (defun org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  ;; Center text.
+  (use-package visual-fill-column
+    :hook (org-mode . org-mode-visual-fill))
 
 ;; Evalute Babel code without asking for confirmation.
 (set 'org-confirm-babel-evaluate nil)
@@ -126,89 +218,7 @@
  'org-babel-load-languages '((ocaml . t)
                              (emacs-lisp . t)))
 
-;; Projects.
-(use-package projectile
-  :diminish
-  :config
-  (projectile-mode 1)
-  :custom
-  ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  (when (file-directory-p "~/devel")
-    (setq projectile-project-search-path '("~/devel")))
-                                        ; Open project in dired
-  (setq projectile-switch-project-action 'projectile-dired))
-
-;; Search: grep
-(use-package ripgrep)
-
-;; Git
-(use-package magit
-  :custom
-                                        ; By default, Magit opens status in a new window.
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-(defun org-mode-setup ()
-  (org-indent-mode)
-  ;; (auto-fill-mode)
-   (display-line-numbers-mode nil)
-  )
-
-(defun org-mode-font-setup ()
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil
-                        :font "Cantarell" :weight 'regular
-                        :height (cdr face))))
-
-;; Orgmode
-(use-package org
-  :hook (org-mode . org-mode-setup)
-  :config
-  (org-mode-font-setup)
-  (setq org-ellipsis " ▾")
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t)
-  (setq org-hide-emphasis-markers t)
-  (setq org-agenda-files
-        '("~/devel/tasks.org")))
-
-;; Replace stars with utf-8 chars.
-(use-package org-bullets
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-(defun org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
-
-;; Center text.
-(use-package visual-fill-column
-  :hook (org-mode . org-mode-visual-fill))
-
-;; StandardML
 (use-package sml-mode)
-
-;; Enable the language server protocol
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (tuareg-mode . lsp-deferred))
-
-;; Show messages on the right-side margin
-(use-package lsp-ui
-  :hook (tuareg-mode . lsp-ui-sideline-mode))
 
 ;; OCaml
 (use-package ocamlformat
@@ -217,12 +227,6 @@
 (use-package editorconfig
   :config
   (editorconfig-mode 1))
-
-;; Refresh buffers automatically
-(global-auto-revert-mode 1)
-
-(savehist-mode 1)
-(save-place-mode 1)
 
 (use-package pdf-tools
   :config
