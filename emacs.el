@@ -133,7 +133,7 @@
   :init
   (setq lsp-ui-sideline-show-diagnostics t)
   (setq lsp-ui-sideline-show-hover nil)
-  (setq lsp-ui-sideline-update-mode 'line)
+  (setq lsp-ui-sideline-update-mode 'point)
   (setq lsp-ui-sideline-enable t))
 
 (use-package lsp-ivy
