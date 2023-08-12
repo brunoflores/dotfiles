@@ -173,6 +173,12 @@ Auto-tangle configuration files when we save this org file.
     (setq projectile-switch-project-action 'projectile-dired))
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package editorconfig
+    :config
+    (editorconfig-mode 1))
+#+end_src
+
 * Search
 
 #+begin_src emacs-lisp
@@ -185,18 +191,23 @@ Auto-tangle configuration files when we save this org file.
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
     :hook (;; Enable languages here.
-           (tuareg-mode . lsp-deferred)
-           (shell-script-mode . lsp-deferred)))
+	   (tuareg-mode . lsp-deferred)
+	   (shell-script-mode . lsp-deferred)))
 
   ;; Show messages on the right-side margin.
   (use-package lsp-ui
     :commands lsp-ui-mode
     :hook (tuareg-mode . lsp-ui-sideline-mode)
     :init
+    (setq lsp-ui-sideline-show-diagnostics t)
+    (setq lsp-ui-sideline-show-hover nil)
+    (setq lsp-ui-sideline-update-mode 'line)
     (setq lsp-ui-sideline-enable t))
 
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
+
+  (use-package yasnippet) ; Used by lsp-mode.
 #+end_src
 
 * Programming environments
@@ -238,7 +249,10 @@ Auto-tangle configuration files when we save this org file.
 
 ** Ocaml
 
-TODO
+#+begin_src emacs-lisp
+  (use-package ocamlformat
+    :hook (before-save . ocamlformat-before-save))
+#+end_src
 
 ** Org
 
@@ -315,21 +329,17 @@ TODO
   (use-package sml-mode)
 #+end_src
 
-* Others
+** PDF
 
 #+begin_src emacs-lisp
-  ;; OCaml
-  (use-package ocamlformat
-    :hook (before-save . ocamlformat-before-save))
-
-  (use-package editorconfig
-    :config
-    (editorconfig-mode 1))
-
   (use-package pdf-tools
     :config
     (pdf-tools-install))
+#+end_src
 
+** Scheme
+
+#+begin_src emacs-lisp
   (use-package geiser)
   (use-package geiser-guile)
 #+end_src

@@ -111,23 +111,32 @@
   ; Open project in dired
   (setq projectile-switch-project-action 'projectile-dired))
 
+(use-package editorconfig
+  :config
+  (editorconfig-mode 1))
+
 (use-package ripgrep)
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook (;; Enable languages here.
-         (tuareg-mode . lsp-deferred)
-         (shell-script-mode . lsp-deferred)))
+	 (tuareg-mode . lsp-deferred)
+	 (shell-script-mode . lsp-deferred)))
 
 ;; Show messages on the right-side margin.
 (use-package lsp-ui
   :commands lsp-ui-mode
   :hook (tuareg-mode . lsp-ui-sideline-mode)
   :init
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-ui-sideline-show-hover nil)
+  (setq lsp-ui-sideline-update-mode 'line)
   (setq lsp-ui-sideline-enable t))
 
 (use-package lsp-ivy
   :commands lsp-ivy-workspace-symbol)
+
+(use-package yasnippet) ; Used by lsp-mode.
 
 ;; https://github.com/emacsorphanage/git-gutter
 (use-package git-gutter
@@ -156,6 +165,9 @@
 
 (use-package paredit
   :hook (lisp-mode . paredit-mode))
+
+(use-package ocamlformat
+  :hook (before-save . ocamlformat-before-save))
 
 (defun org-mode-setup ()
   (org-indent-mode)
@@ -219,14 +231,6 @@
                              (emacs-lisp . t)))
 
 (use-package sml-mode)
-
-;; OCaml
-(use-package ocamlformat
-  :hook (before-save . ocamlformat-before-save))
-
-(use-package editorconfig
-  :config
-  (editorconfig-mode 1))
 
 (use-package pdf-tools
   :config
