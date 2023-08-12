@@ -9,6 +9,9 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; Add :diminish to keep minor modes out of the mode line.
+(use-package diminish)
+
 (add-hook 'before-save-hook
           'delete-trailing-whitespace)
 
@@ -23,18 +26,21 @@
 ;; Use the language's major-mode binding in code blocks.
 (setq-default org-src-tab-acts-natively t)
 
+;; Smoother scrolling from
+;; https://www.emacswiki.org/emacs/SmoothScrolling
+(setq-default scroll-step 1
+              scroll-conservatively 10000)
+
+(load-theme 'wombat t)
+(set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (menu-bar-mode -1)
 
-(windmove-default-keybindings)
-
-(load-theme 'wombat t)
-(set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
-
-;; Enable line numbers on the left.
-(global-display-line-numbers-mode t)
+;; Disable line numbers on the left by default.
+(global-display-line-numbers-mode -1)
 
 ;; Show column number at the bottom next to the line number.
 (column-number-mode t)
@@ -44,6 +50,11 @@
 
 ;; Make ESC quit prompts.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; Shortcut to switch between two buffers.
+(global-set-key (kbd "M-o")  'mode-line-other-buffer)
+
+(windmove-default-keybindings)
 
 ;; Automatically tangle our emacs.org config file when we save it.
 (defun org-babel-tangle-config ()
@@ -56,11 +67,50 @@
                            (add-hook 'after-save-hook
                                      #'org-babel-tangle-config)))
 
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         ("C-x b" . ivy-switch-buffer)
+         ("C-x C-b" . ivy-switch-buffer))
+  :config
+  ;; Always enabled.
+  (ivy-mode 1)
+  :init
+  ;; Add files and bookmarks to switch-buffer prompt.
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) "))
+
+;; Prescient to sort auto-completion by recency.
+(use-package ivy-prescient
+  :diminish
+  :config
+  (ivy-prescient-mode 1))
+
+;; Package git-gutter.el
+;; https://github.com/emacsorphanage/git-gutter
+(use-package git-gutter
+  :diminish
+  :hook
+  ;; Enable in all modes that inherit from prog-mode.
+  (prog-mode . git-gutter-mode)
+  :config
+  ;; Interval in seconds.
+  (setq git-gutter:update-interval 2))
+
+;; https://github.com/emacsorphanage/git-gutter-fringe
+(use-package git-gutter-fringe
+  :config
+  ;; Green
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  ;; Purple
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  ;; Red
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+
 (use-package paredit
   :hook (lisp-mode . paredit-mode))
 
-;; Enable auto-fill in org-mode.
-(add-hook 'org-mode-hook 'auto-fill-mode)
+
 
 ;; Evalute Babel code without asking for confirmation.
 (set 'org-confirm-babel-evaluate nil)
@@ -76,48 +126,6 @@
  'org-babel-load-languages '((ocaml . t)
                              (emacs-lisp . t)))
 
-;; Add :diminish to keep minor modes out of the mode line.
-(use-package diminish)
-
-;; Package git-gutter.el
-;; https://github.com/emacsorphanage/git-gutter
-(use-package git-gutter
-  :diminish
-  :hook
-  (prog-mode . git-gutter-mode)
-  :config
-  (setq git-gutter:update-interval 2))
-
-;; https://github.com/emacsorphanage/git-gutter-fringe
-(use-package git-gutter-fringe
-  :config
-  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
-  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
-  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
-  (global-git-gutter-mode +1)
-
-;; Auto-completion.
-(use-package counsel
-  :bind (
-        ;; ("C-x b" . counsel-ibuffer))
-        ))
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper))
-  :config
-  (ivy-mode 1))
-(setq ivy-use-virtual-buffers t)
-(setq ivy-count-format "(%d/%d) ")
-
-;; Shortcut to switch between two buffers.
-(global-set-key (kbd "M-o")  'mode-line-other-buffer)
-
-;; Prescient to sort auto-completion by recency.
-(use-package ivy-prescient
-  :diminish
-  :config
-  (ivy-prescient-mode 1))
-
 ;; Projects.
 (use-package projectile
   :diminish
@@ -130,7 +138,7 @@
   :init
   (when (file-directory-p "~/devel")
     (setq projectile-project-search-path '("~/devel")))
-  ; Open project in dired
+                                        ; Open project in dired
   (setq projectile-switch-project-action 'projectile-dired))
 
 ;; Search: grep
@@ -139,13 +147,14 @@
 ;; Git
 (use-package magit
   :custom
-  ; By default, Magit opens status in a new window.
+                                        ; By default, Magit opens status in a new window.
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (defun org-mode-setup ()
   (org-indent-mode)
-  (auto-fill-mode)
-  (display-line-numbers-mode 0))
+  ;; (auto-fill-mode)
+   (display-line-numbers-mode nil)
+  )
 
 (defun org-mode-font-setup ()
   ;; Set faces for heading levels
@@ -157,7 +166,9 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
+    (set-face-attribute (car face) nil
+                        :font "Cantarell" :weight 'regular
+                        :height (cdr face))))
 
 ;; Orgmode
 (use-package org
@@ -214,8 +225,8 @@
 (save-place-mode 1)
 
 (use-package pdf-tools
-      :config
-     (pdf-tools-install))
+  :config
+  (pdf-tools-install))
 
 (use-package geiser)
 (use-package geiser-guile)
