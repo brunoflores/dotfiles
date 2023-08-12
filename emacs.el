@@ -12,8 +12,11 @@
 ;; Add :diminish to keep minor modes out of the mode line.
 (use-package diminish)
 
-(add-hook 'before-save-hook
-          'delete-trailing-whitespace)
+;; In all modes, delete trailing whitespaces before saving.
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; In all prog modes, display line numbers on the left margin.
+(add-hook 'prog-mode-hook (lambda () (display-line-numbers-mode t)))
 
 ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
 (setq-default fill-column 80)

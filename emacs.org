@@ -29,11 +29,14 @@ Together with use-package, :diminish can hide minor modes from the mode line.
   (use-package diminish)
 #+end_src
 
-In all modes, delete trailing whitespaces before saving.
+Some global hooks.
 
 #+begin_src emacs-lisp
-  (add-hook 'before-save-hook
-            'delete-trailing-whitespace)
+  ;; In all modes, delete trailing whitespaces before saving.
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+  ;; In all prog modes, display line numbers on the left margin.
+  (add-hook 'prog-mode-hook (lambda () (display-line-numbers-mode t)))
 #+end_src
 
 Set some global default values. We use only `setq-default` in case a
