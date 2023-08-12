@@ -42,6 +42,9 @@
 ; Always display fill column line.
 (global-display-fill-column-indicator-mode t)
 
+;; Make ESC quit prompts.
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
 ;; Automatically tangle our emacs.org config file when we save it.
 (defun org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
@@ -72,9 +75,6 @@
 (org-babel-do-load-languages
  'org-babel-load-languages '((ocaml . t)
                              (emacs-lisp . t)))
-
-;; Make ESC quit prompts.
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 ;; Add :diminish to keep minor modes out of the mode line.
 (use-package diminish)
