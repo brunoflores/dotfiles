@@ -346,3 +346,24 @@ Auto-tangle configuration files when we save this org file.
   (use-package geiser)
   (use-package geiser-guile)
 #+end_src
+
+* Terminals
+
+We use vterm with defaults for the momment.
+
+#+begin_src emacs-lisp
+(use-package vterm)
+#+end_src
+
+* Dired
+
+In dired, we bind some shortcuts and change the default sorting of files and
+dirs.
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :ensure nil
+    :commands (dired dired-jump)
+    :bind (("C-x C-j" . dired-jump))
+    :custom ((dired-listing-switches "-ltgo")))
+#+end_src

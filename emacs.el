@@ -241,3 +241,11 @@
 
 (use-package geiser)
 (use-package geiser-guile)
+
+(use-package vterm)
+
+(use-package dired
+  :ensure nil
+  :commands (dired dired-jump)
+  :bind (("C-x C-j" . dired-jump))
+  :custom ((dired-listing-switches "-ltgo")))
