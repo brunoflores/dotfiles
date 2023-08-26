@@ -104,6 +104,33 @@
   :config
   (ivy-prescient-mode 1))
 
+(use-package vertico
+  :init
+  (vertico-mode))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+(use-package consult
+  :hook
+  ;; Enable automatic preview at point in the *Completions* buffer.
+  (completion-list-mode . consult-preview-at-point-mode))
+
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
@@ -261,30 +288,3 @@
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump))
   :custom ((dired-listing-switches "-ltgo")))
-
-(use-package vertico
-  :init
-  (vertico-mode))
-
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-(use-package savehist
-  :init
-  (savehist-mode))
-
-(use-package marginalia
-  :init
-  (marginalia-mode))
-
-(use-package consult
-  :hook
-  ;; Enable automatic preview at point in the *Completions* buffer.
-  (completion-list-mode . consult-preview-at-point-mode))
-
-(use-package orderless
-  :init
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
-  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
