@@ -133,8 +133,7 @@
          ("s-f" . consult-find) ; Find file in project
          ("C-x b" . consult-buffer)
          ("C-x C-b" . consult-buffer)
-         ("C-y" . consult-yank-from-kill-ring)
-         ("C-i" . consult-imenu)))
+         ("C-y" . consult-yank-from-kill-ring)))
 
 (use-package orderless
   :init
@@ -249,12 +248,15 @@
   (setq org-ellipsis " …")
   ;; Remove the default underline style from elipsis.
   (set-face-underline 'org-ellipsis nil)
+
+  ;; Agenda:
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
-  (setq org-hide-emphasis-markers t)
   (setq org-agenda-files
         '("~/devel/tasks.org"))
+
+  (setq org-hide-emphasis-markers t)
   :init
   (display-fill-column-indicator-mode nil))
 
