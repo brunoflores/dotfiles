@@ -79,7 +79,9 @@
                            (add-hook 'after-save-hook
                                      #'org-babel-tangle-config)))
 
-(use-package company)
+(use-package company
+  ;; Enable company-mode in all buffers.
+  :hook (after-init-hook . global-company-mode))
 
 (use-package ivy
   :disabled
