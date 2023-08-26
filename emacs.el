@@ -60,6 +60,10 @@
 ;; Save place in each file.
 (save-place-mode t)
 
+(use-package which-key
+  :init
+  (which-key-mode))
+
 ;; Make ESC quit prompts.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 

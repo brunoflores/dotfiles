@@ -100,6 +100,12 @@ Enable some default modes.
   (save-place-mode t)
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package which-key
+    :init
+    (which-key-mode))
+#+end_src
+
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
