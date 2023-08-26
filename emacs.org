@@ -88,7 +88,7 @@ Enable some default modes.
   (column-number-mode t)
 
   ;; Always display fill column line.
-  (global-display-fill-column-indicator-mode t)
+  ;; (global-display-fill-column-indicator-mode t)
 
   ;; Refresh buffers automatically.
   (global-auto-revert-mode t)
@@ -326,8 +326,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
   (defun org-mode-setup ()
     (org-indent-mode)
     (auto-fill-mode)
-    (display-line-numbers-mode -1)
-    (display-fill-column-indicator-mode -1))
+    (display-line-numbers-mode -1))
 
   (defun org-mode-font-setup ()
     ;; Set faces for heading levels
@@ -355,7 +354,9 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     (setq org-log-into-drawer t)
     (setq org-hide-emphasis-markers t)
     (setq org-agenda-files
-          '("~/devel/tasks.org")))
+          '("~/devel/tasks.org"))
+    :init
+    (display-fill-column-indicator-mode nil))
 
   ;; Replace stars with utf-8 chars.
   (use-package org-bullets
