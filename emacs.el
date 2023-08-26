@@ -204,7 +204,9 @@
   :hook (org-mode . org-mode-setup)
   :config
   (org-mode-font-setup)
-  (setq org-ellipsis " ▾")
+  (setq org-ellipsis " …")
+  ;; Remove the default underline style from elipsis.
+  (set-face-underline 'org-ellipsis nil)
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
