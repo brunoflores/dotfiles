@@ -276,7 +276,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
   (use-package yasnippet) ; Used by lsp-mode.
 #+end_src
 
-* Programming environments
+* Programming Environments
 ** Git
 
 #+begin_src emacs-lisp
