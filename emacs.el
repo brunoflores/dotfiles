@@ -61,6 +61,7 @@
 (save-place-mode t)
 
 (use-package which-key
+  :diminish
   :init
   (which-key-mode))
 
@@ -122,9 +123,18 @@
   (marginalia-mode))
 
 (use-package consult
+  :init
+  (recentf-mode) ; Enables tracking of recent files
   :hook
   ;; Enable automatic preview at point in the *Completions* buffer.
-  (completion-list-mode . consult-preview-at-point-mode))
+  (completion-list-mode . consult-preview-at-point-mode)
+  :bind (("C-s" . consult-line) ; Search in current buffer
+         ("s-s" . consult-line-multi) ; Seach across project buffers
+         ("s-f" . consult-find) ; Find file in project
+         ("C-x b" . consult-buffer)
+         ("C-x C-b" . consult-buffer)
+         ("C-y" . consult-yank-from-kill-ring)
+         ("C-i" . consult-imenu)))
 
 (use-package orderless
   :init
