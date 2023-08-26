@@ -186,46 +186,46 @@
   (display-line-numbers-mode -1)
   (display-fill-column-indicator-mode -1))
 
-  (defun org-mode-font-setup ()
-    ;; Set faces for heading levels
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      (set-face-attribute (car face) nil
-                          :font "Cantarell" :weight 'regular
-                          :height (cdr face))))
+(defun org-mode-font-setup ()
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil
+                        :font "Cantarell" :weight 'regular
+                        :height (cdr face))))
 
-  (use-package org
-    :hook (org-mode . org-mode-setup)
-    :config
-    (org-mode-font-setup)
-    (setq org-ellipsis " ▾")
-    (setq org-agenda-start-with-log-mode t)
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t)
-    (setq org-hide-emphasis-markers t)
-    (setq org-agenda-files
-          '("~/devel/tasks.org")))
+(use-package org
+  :hook (org-mode . org-mode-setup)
+  :config
+  (org-mode-font-setup)
+  (setq org-ellipsis " ▾")
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+  (setq org-hide-emphasis-markers t)
+  (setq org-agenda-files
+        '("~/devel/tasks.org")))
 
-  ;; Replace stars with utf-8 chars.
-  (use-package org-bullets
-    :hook (org-mode . org-bullets-mode)
-    :custom
-    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+;; Replace stars with utf-8 chars.
+(use-package org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-  (defun org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
-          visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
+(defun org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
 
-  ;; Center text.
-  (use-package visual-fill-column
-    :hook (org-mode . org-mode-visual-fill))
+;; Center text.
+(use-package visual-fill-column
+  :hook (org-mode . org-mode-visual-fill))
 
 ;; Evalute Babel code without asking for confirmation.
 (set 'org-confirm-babel-evaluate nil)
