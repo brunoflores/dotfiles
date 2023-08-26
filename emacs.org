@@ -168,7 +168,7 @@ Ivy is disabled at the moment in favour of Vertico.
     (ivy-prescient-mode 1))
 #+end_src
 
-Vertico and friends.
+** Vertico and friends.
 
 #+begin_src emacs-lisp
   (use-package vertico
