@@ -82,6 +82,7 @@
 (use-package company)
 
 (use-package ivy
+  :disabled
   :diminish
   :bind (("C-s" . swiper)
          ("C-x b" . ivy-switch-buffer)
@@ -96,16 +97,16 @@
 
 ;; Prescient to sort auto-completion by recency.
 (use-package ivy-prescient
+  :disabled
   :diminish
   :config
   (ivy-prescient-mode 1))
 
 (use-package projectile
-  :diminish
-  :config
-  (projectile-mode 1)
-  :custom
-  ((projectile-completion-system 'ivy))
+  :diminish projectile-mode
+  :config (projectile-mode)
+  ;; Set if using Ivy.
+  ; :custom ((projectile-completion-system 'ivy))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
@@ -114,7 +115,14 @@
   ; Open project in dired
   (setq projectile-switch-project-action 'projectile-dired))
 
+(use-package counsel-projectile
+  :disabled
+  :after projectile
+  :config
+  (counsel-projectile-mode))
+
 (use-package editorconfig
+  :diminish
   :config
   (editorconfig-mode 1))
 
@@ -249,3 +257,30 @@
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump))
   :custom ((dired-listing-switches "-ltgo")))
+
+(use-package vertico
+  :init
+  (vertico-mode))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+(use-package consult
+  :hook
+  ;; Enable automatic preview at point in the *Completions* buffer.
+  (completion-list-mode . consult-preview-at-point-mode))
+
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))

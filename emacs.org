@@ -139,6 +139,7 @@ Auto-tangle configuration files when we save this org file.
   (use-package company)
 
   (use-package ivy
+    :disabled
     :diminish
     :bind (("C-s" . swiper)
            ("C-x b" . ivy-switch-buffer)
@@ -153,6 +154,7 @@ Auto-tangle configuration files when we save this org file.
 
   ;; Prescient to sort auto-completion by recency.
   (use-package ivy-prescient
+    :disabled
     :diminish
     :config
     (ivy-prescient-mode 1))
@@ -162,11 +164,10 @@ Auto-tangle configuration files when we save this org file.
 
 #+begin_src emacs-lisp
   (use-package projectile
-    :diminish
-    :config
-    (projectile-mode 1)
-    :custom
-    ((projectile-completion-system 'ivy))
+    :diminish projectile-mode
+    :config (projectile-mode)
+    ;; Set if using Ivy.
+    ; :custom ((projectile-completion-system 'ivy))
     :bind-keymap
     ("C-c p" . projectile-command-map)
     :init
@@ -174,6 +175,16 @@ Auto-tangle configuration files when we save this org file.
       (setq projectile-project-search-path '("~/devel")))
     ; Open project in dired
     (setq projectile-switch-project-action 'projectile-dired))
+#+end_src
+
+Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
+
+#+begin_src emacs-lisp
+  (use-package counsel-projectile
+    :disabled
+    :after projectile
+    :config
+    (counsel-projectile-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -367,4 +378,47 @@ dirs.
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump))
     :custom ((dired-listing-switches "-ltgo")))
+#+end_src
+
+* Vertico
+
+#+begin_src emacs-lisp
+  (use-package vertico
+    :init
+    (vertico-mode))
+
+  ;; Persist history over Emacs restarts. Vertico sorts by history position.
+  (use-package savehist
+    :init
+    (savehist-mode))
+#+end_src
+
+Marginalia for annotations in the minibuffer.
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :init
+    (marginalia-mode))
+#+end_src
+
+Consult provides search and navigation commands.
+
+#+begin_src emacs-lisp
+  (use-package consult
+    :hook
+    ;; Enable automatic preview at point in the *Completions* buffer.
+    (completion-list-mode . consult-preview-at-point-mode))
+#+end_src
+
+Orderless allows me to search word parts in any order.
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :init
+    ;; Configure a custom style dispatcher (see the Consult wiki)
+    ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
+    ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+    (setq completion-styles '(orderless basic)
+          completion-category-defaults nil
+          completion-category-overrides '((file (styles partial-completion)))))
 #+end_src
