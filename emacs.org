@@ -102,6 +102,7 @@ Enable some default modes.
 
 #+begin_src emacs-lisp
   (use-package which-key
+    :diminish
     :init
     (which-key-mode))
 #+end_src
