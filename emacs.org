@@ -359,20 +359,20 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 
   (use-package org
     :hook (org-mode . org-mode-setup)
-    :config
-    (org-mode-font-setup)
-    (setq org-ellipsis " …")
-    ;; Remove the default underline style from elipsis.
-    (set-face-underline 'org-ellipsis nil)
+    :custom
+    (org-ellipsis " …")
 
     ;; Agenda:
-    (setq org-agenda-start-with-log-mode t)
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t)
-    (setq org-agenda-files
-          '("~/devel/tasks.org"))
+    (org-agenda-start-with-log-mode t)
+    (org-log-done 'time)
+    (org-log-into-drawer t)
+    (org-agenda-files '("~/devel/tasks.org"))
 
-    (setq org-hide-emphasis-markers t)
+    (org-hide-emphasis-markers t)
+    :config
+    (org-mode-font-setup)
+    ;; Remove the default underline style from elipsis.
+    (set-face-underline 'org-ellipsis nil)
     :init
     (display-fill-column-indicator-mode nil))
 
