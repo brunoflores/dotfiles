@@ -178,6 +178,7 @@ Auto-tangle configuration files when we save this org file.
 
 #+begin_src emacs-lisp
   (use-package editorconfig
+    :diminish
     :config
     (editorconfig-mode 1))
 #+end_src
