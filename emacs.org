@@ -320,7 +320,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :hook (before-save . ocamlformat-before-save))
 #+end_src
 
-** Org
+** Org Mode
 
 #+begin_src emacs-lisp
   (defun org-mode-setup ()
@@ -372,6 +372,10 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
   (use-package visual-fill-column
     :hook (org-mode . org-mode-visual-fill))
 #+end_src
+
+** Org Roam
+
+
 
 ** Babel
 
