@@ -89,6 +89,7 @@ Disable some default modes.
   (menu-bar-mode -1)
 
   ;; Disable line numbers on the left by default.
+  ;; We enable them for all prog modes below.
   (global-display-line-numbers-mode -1)
 #+end_src
 
