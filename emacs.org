@@ -314,7 +314,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     (prog-mode . git-gutter-mode)
     :config
     ;; Interval in seconds.
-    (setq git-gutter:update-interval 2))
+    (setq git-gutter:update-interval 1))
 
   ;; https://github.com/emacsorphanage/git-gutter-fringe
   (use-package git-gutter-fringe
