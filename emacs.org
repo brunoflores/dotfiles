@@ -382,8 +382,9 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     (org-log-done 'time) ; Use current time with completing a task
     (org-log-into-drawer t) ; Put properties in closed drawer
     (org-directory "~/devel/org-mode-my-files")
+    (org-deadline-warning-days 2)
     ; Files to be used for agenda display:
-    (org-agenda-files '("~/devel/tasks.org"))
+    (org-agenda-files '("tasks.org"))
 
     :config
     (org-mode-font-setup)
