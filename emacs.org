@@ -13,6 +13,7 @@ Configure package repositories.
   (package-initialize)
 #+end_src
 
+Configuration and loading of packages:
 Install and enable use-package and configure to always install if not present.
 
 #+begin_src emacs-lisp
@@ -87,9 +88,6 @@ Enable some default modes.
   ;; Show column number at the bottom next to the line number.
   (column-number-mode t)
 
-  ;; Always display fill column line.
-  ;; (global-display-fill-column-indicator-mode t)
-
   ;; Refresh buffers automatically.
   (global-auto-revert-mode t)
 
@@ -98,6 +96,8 @@ Enable some default modes.
 
   ;; Save place in each file.
   (save-place-mode t)
+
+  (auto-fill-mode)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -340,8 +340,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 #+begin_src emacs-lisp
   (defun org-mode-setup ()
     (org-indent-mode)
-    (auto-fill-mode)
-    (display-line-numbers-mode -1))
+    (diminish 'org-indent-mode))
 
   (defun org-mode-font-setup ()
     ;; Set faces for heading levels
@@ -374,9 +373,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :config
     (org-mode-font-setup)
     ;; Remove the default underline style from elipsis.
-    (set-face-underline 'org-ellipsis nil)
-    :init
-    (display-fill-column-indicator-mode nil))
+    (set-face-underline 'org-ellipsis nil))
 
   ;; Replace stars with utf-8 chars.
   (use-package org-bullets
