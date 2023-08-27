@@ -368,7 +368,11 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
                           :height (cdr face))))
 
   (use-package org
-    :hook (org-mode . org-mode-setup)
+    :after
+    (git-gutter)
+    :hook
+    (org-mode . org-mode-setup)
+    (org-mode . git-gutter-mode)
     :custom
     (org-ellipsis " …")
     (org-hide-emphasis-markers t)
