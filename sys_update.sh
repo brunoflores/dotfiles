@@ -20,6 +20,8 @@ pacman -Qqen > ./arch/pacman_Qqen.txt
 # `pacman -S - < ./arch/pacman_Qqen.txt`
 
 git add ./arch/pacman_Qe.txt
+git add ./arch/pacman_Qqen.txt
+
 git commit -m "Update arch system."
 git push origin master
 
