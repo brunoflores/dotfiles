@@ -12,3 +12,8 @@ Add to `~/.emacs`:
 (load "~/devel/dotfiles/emacs/emacs.el")
 ```
 
+Make executable:
+
+```fish
+chmod +x sys_update.sh
+```
