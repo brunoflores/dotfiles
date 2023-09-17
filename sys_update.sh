@@ -8,6 +8,8 @@ git checkout master
 git pull origin master
 
 sudo pacman -Syu
+fish_update_completions
+
 pacman -Qe > ./arch/pacman_Qe.txt
 git add ./arch/pacman_Qe.txt
 git commit -m "Update arch system."
