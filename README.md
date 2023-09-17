@@ -1,2 +1,7 @@
-# dotfiles
+# Installation
 
+```fish
+ln -s ~/devel/dotfiles/arch/.xserverrc ~/.xserver
+ln -s ~/devel/dotfiles/arch/.xinitrc ~/.xinitrc
+ln -s ~/devel/dotfiles/fish/config.fish ~/.config/fish/config.fish
+```
