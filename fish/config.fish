@@ -8,6 +8,7 @@ alias pbcopy "xsel --clipboard --input"
 alias pbpaste "xsel --clipboard --output"
 
 # Aliases.
+alias sys_update "fish -c ~/devel/dotfiles/sys_update.sh"
 alias grep "rg"
 alias latr "ls -latr"
 alias docker_rmi_dangling "docker rmi (docker images -qa -f 'dangling=true')"
