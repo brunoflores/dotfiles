@@ -26,6 +26,7 @@ openssh 9.4p1-4
 poppler-glib 23.08.0-1
 python 3.11.5-2
 ripgrep 13.0.0-3
+rofi 1.7.5-2
 rustup 1.26.0-3
 sudo 1.9.14.p3-1
 sway 1:1.8.1-1

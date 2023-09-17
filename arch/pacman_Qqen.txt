@@ -26,6 +26,7 @@ openssh
 poppler-glib
 python
 ripgrep
+rofi
 rustup
 sudo
 sway
