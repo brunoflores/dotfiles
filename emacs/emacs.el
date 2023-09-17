@@ -9,6 +9,12 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package auto-package-update
+  :config
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-hide-results t)
+  (auto-package-update-maybe))
+
 ;; Add :diminish to keep minor modes out of the mode line.
 (use-package diminish)
 
@@ -43,13 +49,11 @@
 (menu-bar-mode -1)
 
 ;; Disable line numbers on the left by default.
+;; We enable them for all prog modes below.
 (global-display-line-numbers-mode -1)
 
 ;; Show column number at the bottom next to the line number.
 (column-number-mode t)
-
-;; Always display fill column line.
-;; (global-display-fill-column-indicator-mode t)
 
 ;; Refresh buffers automatically.
 (global-auto-revert-mode t)
@@ -59,6 +63,8 @@
 
 ;; Save place in each file.
 (save-place-mode t)
+
+(auto-fill-mode)
 
 (use-package which-key
   :diminish
@@ -199,7 +205,7 @@
   (prog-mode . git-gutter-mode)
   :config
   ;; Interval in seconds.
-  (setq git-gutter:update-interval 2))
+  (setq git-gutter:update-interval 1))
 
 ;; https://github.com/emacsorphanage/git-gutter-fringe
 (use-package git-gutter-fringe
@@ -224,8 +230,7 @@
 
 (defun org-mode-setup ()
   (org-indent-mode)
-  (auto-fill-mode)
-  (display-line-numbers-mode -1))
+  (diminish 'org-indent-mode))
 
 (defun org-mode-font-setup ()
   ;; Set faces for heading levels
@@ -242,23 +247,28 @@
                         :height (cdr face))))
 
 (use-package org
-  :hook (org-mode . org-mode-setup)
+  :after
+  (git-gutter)
+  :hook
+  (org-mode . org-mode-setup)
+  (org-mode . git-gutter-mode)
   :custom
   (org-ellipsis " …")
-
-  ;; Agenda:
-  (org-agenda-start-with-log-mode t)
-  (org-log-done 'time)
-  (org-log-into-drawer t)
-  (org-agenda-files '("~/devel/tasks.org"))
-
   (org-hide-emphasis-markers t)
+
+  ; Agenda:
+  (org-agenda-start-with-log-mode t)
+  (org-log-done 'time) ; Use current time with completing a task
+  (org-log-into-drawer t) ; Put properties in closed drawer
+  (org-directory "~/devel/org-mode-my-files")
+  (org-deadline-warning-days 2)
+  ; Files to be used for agenda display:
+  (org-agenda-files '("tasks.org"))
+
   :config
   (org-mode-font-setup)
   ;; Remove the default underline style from elipsis.
-  (set-face-underline 'org-ellipsis nil)
-  :init
-  (display-fill-column-indicator-mode nil))
+  (set-face-underline 'org-ellipsis nil))
 
 ;; Replace stars with utf-8 chars.
 (use-package org-bullets
