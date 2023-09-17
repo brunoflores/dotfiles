@@ -19,6 +19,7 @@ linux 6.5.3.arch1-1
 linux-firmware 20230804.7be2766d-2
 man-db 2.11.2-1
 networkmanager 1.44.0-1
+opam 2.1.5-1
 openssh 9.4p1-4
 python 3.11.5-2
 sudo 1.9.14.p3-1
