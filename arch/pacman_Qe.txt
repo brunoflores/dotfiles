@@ -2,6 +2,7 @@ alacritty 0.12.2-1
 base 3-1
 base-devel 1-1
 bemenu 0.6.16-1
+cmake 3.27.5-1
 dhcpcd 10.0.2-1
 dmenu 5.2-1
 docker 1:24.0.5-1
@@ -22,6 +23,7 @@ man-db 2.11.2-1
 networkmanager 1.44.0-1
 opam 2.1.5-1
 openssh 9.4p1-4
+poppler-glib 23.08.0-1
 python 3.11.5-2
 ripgrep 13.0.0-3
 sudo 1.9.14.p3-1
