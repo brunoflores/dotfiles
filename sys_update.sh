@@ -10,10 +10,14 @@ git pull origin master
 sudo pacman -Syu
 fish_update_completions
 
-pacman -Qqen > ./arch/pacman_Qe.txt
+pacman -Qe > ./arch/pacman_Qe.txt
+# This file is only for reference,
+# so we know our current versions.
+
+pacman -Qqen > ./arch/pacman_Qqen.txt
 # We can use the output to reinstall the same list
 # of packages with
-# `pacman -S - < ./arch/pacman_Qe.txt`
+# `pacman -S - < ./arch/pacman_Qqen.txt`
 
 git add ./arch/pacman_Qe.txt
 git commit -m "Update arch system."
