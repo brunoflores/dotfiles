@@ -4,6 +4,7 @@
 ln -s ~/devel/dotfiles/arch/.xserverrc ~/.xserver
 ln -s ~/devel/dotfiles/arch/.xinitrc ~/.xinitrc
 ln -s ~/devel/dotfiles/fish/config.fish ~/.config/fish/config.fish
+ln -s ~/devel/dotfiles/i3/config ~/.config/i3/config
 ```
 
 Add to `~/.emacs`:
