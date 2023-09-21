@@ -39,5 +39,5 @@ xf86-video-vmware 13.4.0-1
 xorg-server 21.1.8-2
 xorg-xinit 1.4.2-1
 xorg-xrandr 1.5.2-1
-xorg-xwayland 23.2.0-1
+xorg-xwayland 23.2.1-1
 xsel 1.2.1-1
