@@ -334,6 +334,7 @@
 (require 'org-tempo)
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("ocaml" . "src ocaml"))
+(add-to-list 'org-structure-template-alist '("bash" . "src bash"))
 
 ;; Enable Babel languages.
 (org-babel-do-load-languages
