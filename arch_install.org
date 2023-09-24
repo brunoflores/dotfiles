@@ -111,8 +111,14 @@ Add them to our =/etc/fstab=:
   UUID=xyz  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
 #+end_src
 
-The reason why I use =fs_passno= 0 (except for the /) is
-https://man.archlinux.org/man/fsck.btrfs.8.en
+The reason why I use =fs_passno= 0 (except for the /) is explained in more detail
+here https://man.archlinux.org/man/fsck.btrfs.8.en
+
+* Suspend-to-disk
+
+Because we use the busybox-based =initramfs= with the =encrypt= hook, we can decrypt
+only a single partition at boot-time. We are required to create a =hook= in
+=/etc/mkinitcpio.conf= to open the swap LUKS device before resuming.
 
 * Chrooted with =arch-chroot=
 
