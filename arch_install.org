@@ -164,20 +164,15 @@ Configure kernel arguments in =/etc/default/grub=. In my
 =GRUB_CMDLINE_LINUX_DEFAULT= I add:
 
 #+begin_src bash
-  resume=UUID=<UUID-swap-partition>
   root=/dev/mapper/root
-  cryptdevice=UUID=<UUID-root-partition>:root
-  crypto=::::
+  cryptdevice=/dev/disk/by-id/<disk-id>:root
 #+end_src
 
-We can find the UUIDs with:
+We can find the disk IDs with:
 
 #+begin_src bash
-  $ ls -l /dev/disk/by-uuid
+  $ ls -l /dev/disk/by-id
 #+end_src
-
-The argument =crypto:::= is really just empty... because we use the defaults for
-disk encryption.
 
 Refresh grub config file:
 
