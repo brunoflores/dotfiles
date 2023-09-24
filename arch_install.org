@@ -1,0 +1,228 @@
+I use this file to note installation steps and decisions I make when installing
+and configuring Arch.
+
+https://wiki.archlinux.org/title/installation_guide
+
+* System Overview
+
+** Booted in UEFI mode
+** Partitions: =efi=,  =root= and =swap=
+** Filesystem is btrfs
+** Disk encryption (=root= partition only) with passphrase
+
+* Steps
+
+System is booted in 64-bit x64 UEFI mode:
+
+#+begin_src bash
+    $ cat /sys/firmware/efi/fw_platform_size
+    64
+#+end_src
+
+Partition table:
+
+#+begin_src bash
+  /dev/sda1  300M       ef  EFI (FAT 32)
+  /dev/sda2  1G         82  Linux swap
+  /dev/sda3  remaining  83  Linux        (encrypted)
+#+end_src
+
+* Disk Encryption
+
+I use disk encruption with =passphrase= and only encrypt my root partion. I do not
+encrypt my boot partition.
+
+Load module =dm_crypt=:
+
+#+begin_src bash
+  $ modprobe dm_crypt
+#+end_src
+
+#+begin_src bash
+  $ cryptsetup luksFormat /dev/sda3
+  $ cryptsetup open /dev/sda3 root
+#+end_src
+
+Once opened, the root partition device address would be =/dev/mapper/root= instead
+of the partition (e.g. =/dev/sda3=).
+
+In order to write encrypted data into the partition it must be accessed through
+the device mapped name.
+
+To close the LUKS container, unmount the partition and do:
+
+#+begin_src bash
+  $ cryptsetup close root
+#+end_src
+
+#+begin_src bash
+  $ mkfs.fat -F 32 /dev/sda1
+  $ mkswap /dev/sda2
+  $ mkfs.btrfs -L root /dev/mapper/root
+
+  $ mount -o compress=zstd:3 /dev/mapper/root /mnt
+  $ mount --mkdir /dev/sda1 /mnt/boot
+  $ swapon /dev/sda2
+#+end_src
+
+#+begin_src bash
+  $ pacstrap -K /mnt base linux linux-firmware
+#+end_src
+
+#+begin_src bash
+  $ genfstab -U /mnt >> /mnt/etc/fstab
+#+end_src
+
+Before chrooting into our new system, let's create our =btrfs= subvolumes and set
+them to mount:
+
+#+begin_src bash
+  $ btrfs subvol create /mnt/@
+  $ btrfs subvol create /mnt/@home
+  $ btrfs subvol create /mnt/@.snapshots
+  $ btrfs subvol create /mnt/@var_log
+#+end_src
+
+Add them to our =/etc/fstab=:
+
+#+begin_src bash
+  UUID=xyz  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
+  UUID=xyz  /home        btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@home        0  0
+  UUID=xyz  /.snapshots  btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots  0  0
+  UUID=xyz  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
+#+end_src
+
+The reason why I use =fs_passno= 0 (except for the /) is
+https://man.archlinux.org/man/fsck.btrfs.8.en
+
+* Chrooted with =arch-chroot=
+
+** Network
+
+Install:
+
+#+begin_src bash
+  $ pacman -S networkmanager
+#+end_src
+
+Enable:
+
+#+begin_src bash
+  $ sysctl enable NetworkManager.service
+#+end_src
+
+** Initial ramdisk
+
+Add =encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =udev,= and between =block= and
+=filesystems=). Refresh the initial ramdisk:
+
+#+begin_src bash
+  $ mkinitcpio -P
+#+end_src
+
+** GRUB
+
+Install =grub= and =efibootmgr=:
+
+#+begin_src bash
+  $ pacman -S grub efibootmgr
+#+end_src
+
+*Before* running =grubs='s installation script, set the default =btrfs= volume to be
+the root of our filesystem so we don't have to pass it as a kernel argument:
+
+(Install =btrfs-progs= if needed.)
+
+#+begin_src bash
+  $ btrfs subvolume set-default 5 /
+#+end_src
+
+Run =grub='s installation script:
+
+#+begin_src bash
+  $ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+#+end_src
+
+Configure kernel arguments in =/etc/default/grub=. In my
+=GRUB_CMDLINE_LINUX_DEFAULT= I add:
+
+#+begin_src bash
+  resume=<UUID-swap-partition>
+  root=/dev/mapper/root
+  cryptdevice=UUID=<UUID-root-partition>:root
+  crypto=::::
+#+end_src
+
+We can find the UUIDs with:
+
+#+begin_src bash
+  $ ls -l /dev/disk/by-uuid
+#+end_src
+
+Refresh grub config file:
+
+#+begin_src bash
+  $ grub-mkconfig -o /boot/grub/grub.cfg
+#+end_src
+
+* Checks after first reboot
+
+Swap status:
+
+#+begin_src bash
+  $ swapon --show
+#+end_src
+
+Internet connection:
+
+#+begin_src bash
+  $ ping archlinux.org
+#+end_src
+
+Root partition is encrypted (=TYPE=crypto_LUKS=):
+
+#+begin_src bash
+  $ blkid /dev/sda*
+#+end_src
+
+Filesystem is =btrfs= in our encrypted root:
+
+#+begin_src bash
+  $ btrfs filesystem show /dev/mapper/root
+#+end_src
+
+Our =btrfs= subvolumes:
+
+#+begin_src bash
+  $ btrfs subvol list /
+#+end_src
+
+* Troubleshooting with an arch live cd
+
+Boot from the cd.
+
+Decrypt our root partition:
+
+#+begin_src bash
+  $ cryptsetup open /dev/sda3 root
+#+end_src
+
+Mount root and boot (assuming the EFI partition is =/dev/sda1=):
+
+#+begin_src bash
+  $ mount /dev/mapper/root /mnt
+  $ mount /dev/sda1 /mnt/boot
+#+end_src
+
+Chroot:
+
+#+begin_src bash
+  $ arch-chroot /mnt
+#+end_src
+
+To exit:
+
+#+begin_src bash
+  $ exit
+  $ umount -R /mnt
+#+end_src
