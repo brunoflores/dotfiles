@@ -5,14 +5,17 @@ https://wiki.archlinux.org/title/installation_guide
 
 * System Overview
 
+** GRUB bootloader
 ** Booted in UEFI mode
 ** Partitions: =efi=,  =root= and =swap=
 ** Filesystem is btrfs
-** Disk encryption (=root= partition only) with passphrase
+** Disk encryption with passphrase
+*** We encrypt the =root= partition
+*** We also encrypt the =swap= partition so that we can hibernate to disk
 
 * Steps
 
-System is booted in 64-bit x64 UEFI mode:
+Check that our system is booted in 64-bit x64 UEFI mode:
 
 #+begin_src bash
     $ cat /sys/firmware/efi/fw_platform_size
@@ -26,6 +29,9 @@ Partition table:
   /dev/sda2  1G         82  Linux swap
   /dev/sda3  remaining  83  Linux        (encrypted)
 #+end_src
+
+Use use the recommended 300Mb for the UEFI partition. I tend to use 1Gb for swap
+*in virtual machines*, and more (at least 2Gb) when installing on hardware.
 
 * Disk Encryption
 
@@ -158,7 +164,7 @@ Configure kernel arguments in =/etc/default/grub=. In my
 =GRUB_CMDLINE_LINUX_DEFAULT= I add:
 
 #+begin_src bash
-  resume=<UUID-swap-partition>
+  resume=UUID=<UUID-swap-partition>
   root=/dev/mapper/root
   cryptdevice=UUID=<UUID-root-partition>:root
   crypto=::::
@@ -169,6 +175,9 @@ We can find the UUIDs with:
 #+begin_src bash
   $ ls -l /dev/disk/by-uuid
 #+end_src
+
+The argument =crypto:::= is really just empty... because we use the defaults for
+disk encryption.
 
 Refresh grub config file:
 
