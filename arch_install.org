@@ -55,19 +55,30 @@ To close the LUKS container, unmount the partition and do:
   $ cryptsetup close root
 #+end_src
 
+Make and format our filesystems. The UEFI partition must be FAT 32.
+
 #+begin_src bash
   $ mkfs.fat -F 32 /dev/sda1
   $ mkswap /dev/sda2
   $ mkfs.btrfs -L root /dev/mapper/root
+#+end_src
 
+Mount our partitions. The compression argument used here will be used by
+=genfstab= below... but of course we can still edit =/etc/fstab= later.
+
+#+begin_src bash
   $ mount -o compress=zstd:3 /dev/mapper/root /mnt
   $ mount --mkdir /dev/sda1 /mnt/boot
   $ swapon /dev/sda2
 #+end_src
 
+Bootstrap:
+
 #+begin_src bash
   $ pacstrap -K /mnt base linux linux-firmware
 #+end_src
+
+Generate our =/etc/fstab=:
 
 #+begin_src bash
   $ genfstab -U /mnt >> /mnt/etc/fstab
