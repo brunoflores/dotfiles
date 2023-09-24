@@ -12,7 +12,7 @@ https://wiki.archlinux.org/title/installation_guide
 ** Filesystem is =btrfs= (using the entirety of the =root= partition)
 ** Suspend-to-disk support
 ** Disk encryption of the =root= partition with passphrase
-** Disk encryption of the =swap= partition with keyfile saved in the encrypted =root=
+** Disk encryption of the =swap= partition with passphrase
 *** We encrypt =swap= so that we can safely suspend (hibernate) to disk
 
 * Steps
@@ -28,7 +28,7 @@ Partition table:
 
 #+begin_src bash
   /dev/sda1  300M       ef  EFI (FAT 32)
-  /dev/sda2  1G         82  Linux swap
+  /dev/sda2  1G         82  Linux swap   (encrypted)
   /dev/sda3  remaining  83  Linux        (encrypted)
 #+end_src
 
@@ -46,18 +46,27 @@ Load module =dm_crypt=:
   $ modprobe dm_crypt
 #+end_src
 
+Format the encrypted container for =root= and then open it:
+
 #+begin_src bash
   $ cryptsetup luksFormat /dev/sda3
   $ cryptsetup open /dev/sda3 root
 #+end_src
 
-Once opened, the root partition device address would be =/dev/mapper/root= instead
-of the partition (e.g. =/dev/sda3=).
+Format the encrypted container for =swap= and then open it:
 
-In order to write encrypted data into the partition it must be accessed through
+#+begin_src bash
+  $ cryptsetup luksFormat /dev/sda2
+  $ cryptsetup open /dev/sda2 swapDevice
+#+end_src
+
+Once opened, the root partition device address would be =/dev/mapper/root= instead
+of the partition (e.g. =/dev/sda3=). The swap is =/dev/mapper/swapDevice=. In order
+to write encrypted data into the partition it must be accessed through
 the device mapped name.
 
-To close the LUKS container, unmount the partition and do:
+To close a LUKS container named "root" (unusual), unmount the partition and then
+do:
 
 #+begin_src bash
   $ cryptsetup close root
@@ -67,17 +76,17 @@ Make and format our filesystems. The UEFI partition must be FAT 32.
 
 #+begin_src bash
   $ mkfs.fat -F 32 /dev/sda1
-  $ mkswap /dev/sda2
+  $ mkswap /dev/mapper/swapDevice
   $ mkfs.btrfs -L root /dev/mapper/root
 #+end_src
 
-Mount our partitions. The compression argument used here will be used by
+Mount our partitions. The mount devices and compression argument will be used by
 =genfstab= below... but of course we can still edit =/etc/fstab= later.
 
 #+begin_src bash
   $ mount -o compress=zstd:3 /dev/mapper/root /mnt
   $ mount --mkdir /dev/sda1 /mnt/boot
-  $ swapon /dev/sda2
+  $ swapon /dev/mapper/swapDevice
 #+end_src
 
 Bootstrap:
@@ -114,12 +123,6 @@ Add them to our =/etc/fstab=:
 The reason why I use =fs_passno= 0 (except for the /) is explained in more detail
 here https://man.archlinux.org/man/fsck.btrfs.8.en
 
-* Suspend-to-disk
-
-Because we use the busybox-based =initramfs= with the =encrypt= hook, we can decrypt
-only a single partition at boot-time. We are required to create a =hook= in
-=/etc/mkinitcpio.conf= to open the swap LUKS device before resuming.
-
 * Chrooted with =arch-chroot=
 
 ** Network
@@ -139,7 +142,47 @@ Enable:
 ** Initial ramdisk
 
 Add =encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =udev,= and between =block= and
-=filesystems=). Refresh the initial ramdisk:
+=filesystems=).
+
+Because we use the busybox-based =initramfs= with the =encrypt= hook, we can decrypt
+only a single partition at boot-time. We are required to create a =hook= in
+=/etc/mkinitcpio.conf= to open the swap LUKS device before resuming from
+hibernation and after botting.
+
+Create =/etc/initcpio/hooks/openswap=:
+
+#+begin_src bash
+  run_hook ()
+  {
+    cryptsetup open /dev/sda2 swapDevice
+  }
+#+end_src
+
+Create =/etc/initcpio/install/openswap=:
+
+#+begin_src bash
+  build ()
+  {
+    add_runscript
+  }
+
+  help ()
+  {
+  cat<<HELPEOF
+    This opens the swap encrypted partition /dev/sda2 in /dev/mapper/swapDevice
+  HELPEOF
+  }
+#+end_src
+
+Add the hook =openswap= in the =HOOKS= array in =/etc/mkinitcpio.conf=, before
+=filesystem= but after =encrypt=. Do not forget to add the =resume= hook after
+=openswap=.
+
+#+begin_src bash
+  HOOKS=(... encrypt openswap resume filesystems ...)
+#+end_src
+
+Regenerate the =initramfs=:
 
 #+begin_src bash
   $ mkinitcpio -P
@@ -172,6 +215,7 @@ Configure kernel arguments in =/etc/default/grub=. In my
 =GRUB_CMDLINE_LINUX_DEFAULT= I add:
 
 #+begin_src bash
+  resume=/dev/mapper/swapDevice
   root=/dev/mapper/root
   cryptdevice=/dev/disk/by-id/<disk-id>:root
 #+end_src
