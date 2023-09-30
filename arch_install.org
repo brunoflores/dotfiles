@@ -75,8 +75,8 @@ do:
 Make and format our filesystems. The UEFI partition must be FAT 32.
 
 #+begin_src bash
-  $ mkfs.fat -F 32 -n swap /dev/sda1
-  $ mkswap /dev/mapper/swapDevice
+  $ mkfs.fat -F 32 -n boot /dev/sda1
+  $ mkswap -L swap /dev/mapper/swapDevice
   $ mkfs.btrfs -L root /dev/mapper/root
 #+end_src
 
