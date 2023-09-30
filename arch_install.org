@@ -267,6 +267,13 @@ Our =btrfs= subvolumes:
   $ btrfs subvol list /
 #+end_src
 
+Check our partitions and labels:
+
+#+begin_src bash
+  $ blkid
+  $ lsblk -f
+#+end_src
+
 * Troubleshooting with an arch live cd
 
 Boot from the cd.
