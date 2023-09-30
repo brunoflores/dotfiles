@@ -207,8 +207,17 @@ the root of our filesystem so we don't have to pass it as a kernel argument:
 
 (Install =btrfs-progs= if needed.)
 
+Check the default sub-volume,
+
 #+begin_src bash
-  $ btrfs subvolume set-default 5 /
+  $ btrfs subvol get-default /
+#+end_src
+
+If not our "@" sub-volume, list all to find its ID and then set it as the
+default. A =grub-install= must follow this.. Example:
+
+#+begin_src bash
+  $ btrfs subvol set-default 258 /
 #+end_src
 
 Run =grub='s installation script:
