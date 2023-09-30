@@ -57,11 +57,11 @@ Format the encrypted container for =swap= and then open it:
 
 #+begin_src bash
   $ cryptsetup luksFormat --label=swap /dev/sda2
-  $ cryptsetup open /dev/sda2 swapDevice
+  $ cryptsetup open /dev/sda2 swap
 #+end_src
 
 Once opened, the root partition device address would be =/dev/mapper/root= instead
-of the partition (e.g. =/dev/sda3=). The swap is =/dev/mapper/swapDevice=. In order
+of the partition (e.g. =/dev/sda3=). The swap is =/dev/mapper/swap=. In order
 to write encrypted data into the partition it must be accessed through
 the device mapped name.
 
@@ -76,7 +76,7 @@ Make and format our filesystems. The UEFI partition must be FAT 32.
 
 #+begin_src bash
   $ mkfs.fat -F 32 -n boot /dev/sda1
-  $ mkswap -L swap /dev/mapper/swapDevice
+  $ mkswap -L swap /dev/mapper/swap
   $ mkfs.btrfs -L root /dev/mapper/root
 #+end_src
 
@@ -86,7 +86,7 @@ Mount our partitions. The mount devices and compression argument will be used by
 #+begin_src bash
   $ mount -o compress=zstd:3 /dev/mapper/root /mnt
   $ mount --mkdir /dev/sda1 /mnt/boot
-  $ swapon /dev/mapper/swapDevice
+  $ swapon /dev/mapper/swap
 #+end_src
 
 Bootstrap:
@@ -156,7 +156,7 @@ Create =/etc/initcpio/hooks/openswap=:
 #+begin_src bash
   run_hook ()
   {
-    cryptsetup open /dev/sda2 swapDevice
+    cryptsetup open /dev/sda2 swap
   }
 #+end_src
 
@@ -171,7 +171,7 @@ Create =/etc/initcpio/install/openswap=:
   help ()
   {
   cat<<HELPEOF
-    This opens the swap encrypted partition /dev/sda2 in /dev/mapper/swapDevice
+    This opens the swap encrypted partition /dev/sda2 in /dev/mapper/swap
   HELPEOF
   }
 #+end_src
