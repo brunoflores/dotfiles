@@ -320,3 +320,17 @@ To exit:
   $ exit
   $ umount -R /mnt
 #+end_src
+
+* Package management
+
+I use [[https://github.com/Jguer/yay][yay]] as my AUR helper.
+
+#+begin_src bash
+  $ pacman -S --needed git base-devel
+  $ git clone https://aur.archlinux.org/yay.git
+  $ cd yay
+  $ makepkg -si
+#+end_src
+
+Enable colored output by enabling =Color= in =/etc/pacman.conf=.
+
