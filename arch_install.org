@@ -125,6 +125,10 @@ Add them to our =/etc/fstab=:
 The reason why I use =fs_passno= 0 (except for the /) is explained in more detail
 here https://man.archlinux.org/man/fsck.btrfs.8.en
 
+The sub-volume =@.snapshots= will be replaced below during snapper
+configuration. Maybe we should avoid creating it here to evoid the extra work
+later.
+
 * Chrooted with =arch-chroot=
 
 ** Network
@@ -334,3 +338,27 @@ I use [[https://github.com/Jguer/yay][yay]] as my AUR helper.
 
 Enable colored output by enabling =Color= in =/etc/pacman.conf=.
 
+* Configuring snapshots
+
+The packages I use are
+
+- =snapper= :: Command-line program for filesystem snapshot management.
+- =snap-pac= :: Pacman hooks that use snapper to create pre/post btrfs snapshots.
+- =snapper-rollback= :: Python script to rollback btrfs systems.
+- =grub-btrfs= :: Include btrfs snapshots in boot options.
+
+The =snapper= package comes with two services that I use
+
+- =snapper-timeline=
+- =snapper-cleanup=
+
+Create the configuration:
+
+#+begin_src bash
+  $ umount /.snapshots
+  $ rm -rf /.snapshots
+  $ snapper -c root create-config /
+#+end_src
+
+Because we created the =@.snapshots= sub-volume above, we follow [[https://wiki.archlinux.org/title/snapper#Configuration_of_snapper_and_mount_point][these extra steps
+to replace it]].
