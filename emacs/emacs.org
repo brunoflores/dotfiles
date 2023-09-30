@@ -23,16 +23,6 @@ Install and enable use-package and configure to always install if not present.
   (setq use-package-always-ensure t)
 #+end_src
 
-Update my packages periodically.
-
-#+begin_src emacs-lisp
-  (use-package auto-package-update
-    :config
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
-    (auto-package-update-maybe))
-#+end_src
-
 Together with use-package, :diminish can hide minor modes from the mode line.
 
 #+begin_src emacs-lisp
