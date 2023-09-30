@@ -235,6 +235,23 @@ Refresh grub config file:
   $ grub-mkconfig -o /boot/grub/grub.cfg
 #+end_src
 
+** Users
+
+At minimum, I install a user for myself.
+
+#+begin_src bash
+  $ useradd -m bruno
+  $ passwd bruno
+#+end_src
+
+Add myself to sudoers:
+
+#+begin_src bash
+  $ gpasswd -a bruno whell
+#+end_src
+
+Configure =/etc/sudoers= to allow members of wheel to execute any command.
+
 * Checks after first reboot
 
 Swap status:
