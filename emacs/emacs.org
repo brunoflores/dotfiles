@@ -116,6 +116,9 @@ Enable some default modes.
 
   ;; Shortcut to switch between two buffers.
   (global-set-key (kbd "M-o")  'mode-line-other-buffer)
+
+  ;; Reload our ~/.emacs.
+  (global-set-key (kbd "C-c <f12>") 'reload-dotemacs)
 #+end_src
 
 Allow movement between windows using SHIFT plus arrow.
@@ -139,6 +142,12 @@ Auto-tangle configuration files when we save this org file.
   (add-hook 'org-mode-hook (lambda ()
                              (add-hook 'after-save-hook
                                        #'org-babel-tangle-config)))
+Here is a function that we can bind to a keybinding. It reloads our =~/.emacs=.
+
+#+begin_src emacs-lisp
+  (defun reload-dotemacs ()
+    (interactive)
+    (load-file "~/.emacs"))
 #+end_src
 
 * Minibuffer completion
