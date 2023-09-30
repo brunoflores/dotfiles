@@ -9,12 +9,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package auto-package-update
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe))
-
 ;; Add :diminish to keep minor modes out of the mode line.
 (use-package diminish)
 
@@ -77,18 +71,25 @@
 ;; Shortcut to switch between two buffers.
 (global-set-key (kbd "M-o")  'mode-line-other-buffer)
 
+;; Reload our ~/.emacs.
+(global-set-key (kbd "C-c <f12>") 'reload-dotemacs)
+
 (windmove-default-keybindings)
 
 ;; Automatically tangle our emacs.org config file when we save it.
 (defun org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/devel/dotfiles/emacs.org"))
+                      (expand-file-name "~/devel/dotfiles/emacs/emacs.org"))
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda ()
                            (add-hook 'after-save-hook
-                                     #'org-babel-tangle-config)))
+                                     'org-babel-tangle-config)))
+
+(defun reload-dotemacs ()
+  (interactive)
+  (load-file "~/.emacs"))
 
 (use-package company
   ;; Enable company-mode in all buffers.
