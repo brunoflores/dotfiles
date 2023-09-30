@@ -236,12 +236,6 @@ creating the filesystems:
   cryptdevice=LABEL=root:root
 #+end_src
 
-We can find the disk IDs with:
-
-#+begin_src bash
-  $ ls -l /dev/disk/by-id
-#+end_src
-
 Refresh grub config file:
 
 #+begin_src bash
