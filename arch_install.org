@@ -212,12 +212,13 @@ Run =grub='s installation script:
 #+end_src
 
 Configure kernel arguments in =/etc/default/grub=. In my
-=GRUB_CMDLINE_LINUX_DEFAULT= I add:
+=GRUB_CMDLINE_LINUX_DEFAULT= I add the following, using labels that we set when
+creating the filesystems:
 
 #+begin_src bash
-  resume=/dev/mapper/swapDevice
-  root=/dev/mapper/root
-  cryptdevice=/dev/disk/by-id/<disk-id>:root
+  resume=LABEL=swap
+  root=LABEL=root
+  cryptdevice=LABEL=root:root
 #+end_src
 
 We can find the disk IDs with:
