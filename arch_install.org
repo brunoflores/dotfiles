@@ -95,10 +95,10 @@ Bootstrap:
   $ pacstrap -K /mnt base linux linux-firmware
 #+end_src
 
-Generate our =/etc/fstab=:
+Generate our =/etc/fstab= using labels (=-L=):
 
 #+begin_src bash
-  $ genfstab -U /mnt >> /mnt/etc/fstab
+  $ genfstab -L /mnt >> /mnt/etc/fstab
 #+end_src
 
 Before chrooting into our new system, let's create our =btrfs= subvolumes and set
@@ -114,10 +114,10 @@ them to mount:
 Add them to our =/etc/fstab=:
 
 #+begin_src bash
-  UUID=xyz  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
-  UUID=xyz  /home        btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@home        0  0
-  UUID=xyz  /.snapshots  btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots  0  0
-  UUID=xyz  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
+  UUID=root  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
+  UUID=root  /home        btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@home        0  0
+  UUID=root  /.snapshots  btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots  0  0
+  UUID=root  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
 #+end_src
 
 The reason why I use =fs_passno= 0 (except for the /) is explained in more detail
