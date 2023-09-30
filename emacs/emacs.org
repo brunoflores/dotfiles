@@ -23,7 +23,7 @@ Install and enable use-package and configure to always install if not present.
   (setq use-package-always-ensure t)
 #+end_src
 
-Together with use-package, :diminish can hide minor modes from the mode line.
+Together with use-package, =:diminish= can hide minor modes from the mode line.
 
 #+begin_src emacs-lisp
   ;; Add :diminish to keep minor modes out of the mode line.
@@ -40,7 +40,7 @@ Some global hooks.
   (add-hook 'prog-mode-hook (lambda () (display-line-numbers-mode t)))
 #+end_src
 
-Set some global default values. We use only `setq-default` in case a
+Set some global default values. We use only =setq-default= in case a
 configuration is "buffer local".
 
 #+begin_src emacs-lisp
