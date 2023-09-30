@@ -10,7 +10,7 @@ https://wiki.archlinux.org/title/installation_guide
 ** Busybox-based =initramfs= with the =encrypt= hook
 ** Partitions: =efi=,  =root= and =swap=
 ** Filesystem is =btrfs= (using the entirety of the =root= partition)
-** Suspend-to-disk support
+** Suspend-to-disk support (Work in progress!)
 ** Disk encryption of the =root= partition with passphrase
 ** Disk encryption of the =swap= partition with passphrase
 *** We encrypt =swap= so that we can safely suspend (hibernate) to disk
