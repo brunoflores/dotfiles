@@ -356,3 +356,33 @@ Create the configuration:
 
 Because we created the =@.snapshots= sub-volume above, we follow [[https://wiki.archlinux.org/title/snapper#Configuration_of_snapper_and_mount_point][these extra steps
 to replace it]].
+
+From here, =snapper ls= should be working (probably under =sudo=).
+
+Edit =/etc/snapper/configs/root=:
+
+#+begin_src bash
+  ALLOW_GROUPS="wheel"
+
+  TIMELINE_LIMIT_HOURLY="5"
+  TIMELINE_LIMIT_DAILY="7"
+  TIMELINE_LIMIT_WEEKLY="0"
+  TIMELINE_LIMIT_MONTHLY="0"
+  TIMELINE_LIMIT_YEARLY="0"
+#+end_src
+
+Enable =grub-btrfs=,
+
+#+begin_src bash
+  $ systemctl start grub-btrfsd
+  $ systemctl enable grub-btrfsd
+#+end_src
+
+And,
+
+#+begin_src bash
+  $ systemctl start snapper-timeline.timer
+  $ systemctl enable snapper-timeline.timer
+  $ systemctl start snapper-cleanup.timer
+  $ systemctl enable snapper-cleanup.timer
+#+end_src
