@@ -104,7 +104,7 @@ Generate our =/etc/fstab= using labels (=-L=):
 Verify that =/etc/fstab= is using only labels. Edit as required.
 
 Before chrooting into our new system, let's create our =btrfs= subvolumes and set
-them to mount:
+them to mount. Here follow the [[https://wiki.archlinux.org/title/snapper#Suggested_filesystem_layout][suggest filesystem layout]] from the =snapper= wiki:
 
 #+begin_src bash
   $ btrfs subvol create /mnt/@
