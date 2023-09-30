@@ -49,14 +49,14 @@ Load module =dm_crypt=:
 Format the encrypted container for =root= and then open it:
 
 #+begin_src bash
-  $ cryptsetup luksFormat /dev/sda3
+  $ cryptsetup luksFormat --label=root /dev/sda3
   $ cryptsetup open /dev/sda3 root
 #+end_src
 
 Format the encrypted container for =swap= and then open it:
 
 #+begin_src bash
-  $ cryptsetup luksFormat /dev/sda2
+  $ cryptsetup luksFormat --label=swap /dev/sda2
   $ cryptsetup open /dev/sda2 swapDevice
 #+end_src
 
@@ -75,7 +75,7 @@ do:
 Make and format our filesystems. The UEFI partition must be FAT 32.
 
 #+begin_src bash
-  $ mkfs.fat -F 32 /dev/sda1
+  $ mkfs.fat -F 32 -n swap /dev/sda1
   $ mkswap /dev/mapper/swapDevice
   $ mkfs.btrfs -L root /dev/mapper/root
 #+end_src
