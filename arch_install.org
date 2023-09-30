@@ -101,6 +101,8 @@ Generate our =/etc/fstab= using labels (=-L=):
   $ genfstab -L /mnt >> /mnt/etc/fstab
 #+end_src
 
+Verify that =/etc/fstab= is using only labels. Edit as required.
+
 Before chrooting into our new system, let's create our =btrfs= subvolumes and set
 them to mount:
 
