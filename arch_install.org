@@ -413,8 +413,22 @@ https://wiki.archlinux.org/title/snapper#Restoring_/_to_its_previous_snapshot
   $ umount -R /mnt
 #+end_src
 
-This relies on having =subvol=@= in =rootflags= in GRUB. The wiki says I should
-regenerate the initramfs image, but I don't find it necessary. Maybe when we are
-rolling back a Kernel?
+Regenerate the initramfs image, probably only necessary if we're rolling back a
+Kernel:
+
+#+begin_src bash
+  $ mount -o subvol=@ /dev/mapper/root /mnt
+  $ mount /dev/sda1 /mnt/boot
+  $ arch-chroot /mnt
+  $ mkinitcpio -P
+  $ exit
+  $ umount -R /mnt
+#+end_src
+
+We regenerate the initramfs image because =vmlinuz-linux= and
+=initramfs-linux.img= at in a separate partition (mounted at =/boot=).
+
+This process relies on having =subvol=@= in =rootflags= in GRUB. That's why we don't
+need to reconfigure the bootloader.
 
 Reboot.
