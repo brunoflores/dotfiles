@@ -84,8 +84,8 @@ Mount our partitions. The mount devices and compression argument will be used by
 =genfstab= below... but of course we can still edit =/etc/fstab= later.
 
 #+begin_src bash
-  $ mount -o compress=zstd:3 /dev/mapper/root /mnt
-  $ mount --mkdir /dev/sda1 /mnt/boot
+  $ mount -o compress=zstd:3 LABEL=root /mnt
+  $ mount --mkdir LABEL=boot /mnt/boot
   $ swapon /dev/mapper/swap
 #+end_src
 
@@ -316,8 +316,8 @@ Decrypt our root partition:
 Mount root and boot (assuming the EFI partition is =/dev/sda1=):
 
 #+begin_src bash
-  $ mount /dev/mapper/root /mnt
-  $ mount /dev/sda1 /mnt/boot
+  $ mount LABEL=root /mnt
+  $ mount LABEL=boot /mnt/boot
 #+end_src
 
 Chroot:
@@ -407,7 +407,7 @@ https://wiki.archlinux.org/title/snapper#Restoring_/_to_its_previous_snapshot
 
 #+begin_src bash
   $ cryptsetup open /dev/sda3 root
-  $ mount -o subvolid=5 /dev/mapper/root /mnt
+  $ mount -o subvolid=5 LABEL=root /mnt
   $ btrfs subvol delete /mnt/@
   $ btrfs subvol snapshot /mnt/@.snapshots/{number}/snapshot /mnt/@
   $ umount -R /mnt
@@ -417,8 +417,8 @@ Regenerate the initramfs image, probably only necessary if we're rolling back a
 Kernel:
 
 #+begin_src bash
-  $ mount -o subvol=@ /dev/mapper/root /mnt
-  $ mount /dev/sda1 /mnt/boot
+  $ mount -o subvol=@ LABEL=root /mnt
+  $ mount LABEL=boot /mnt/boot
   $ arch-chroot /mnt
   $ mkinitcpio -P
   $ exit
