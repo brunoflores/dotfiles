@@ -49,14 +49,14 @@ Load module =dm_crypt=:
 Format the encrypted container for =root= and then open it:
 
 #+begin_src bash
-  $ cryptsetup luksFormat --label=root /dev/sda3
+  $ cryptsetup luksFormat --type luks2 --label=root /dev/sda3
   $ cryptsetup open /dev/sda3 root
 #+end_src
 
 Format the encrypted container for =swap= and then open it:
 
 #+begin_src bash
-  $ cryptsetup luksFormat --label=swap /dev/sda2
+  $ cryptsetup luksFormat --type luks2 --label=swap /dev/sda2
   $ cryptsetup open /dev/sda2 swap
 #+end_src
 
