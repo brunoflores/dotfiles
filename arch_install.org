@@ -217,15 +217,24 @@ Run =grub='s installation script:
   $ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 #+end_src
 
+The script =grub-install= must be executed after every change of the default
+sub-volume! We avoid that by always having =5= (root) as default, and instead
+passing =subvol=@= via Kernel parameters below (=rootflags=).
+
 Configure kernel arguments in =/etc/default/grub=. In my
 =GRUB_CMDLINE_LINUX_DEFAULT= I add the following, using labels that we set when
 creating the filesystems:
 
 #+begin_src bash
+  rootflags=subvol=@
   resume=LABEL=swap
   root=LABEL=root
   cryptdevice=LABEL=root:root
 #+end_src
+
+The =subvol= in =rootflags= have to do with
+https://wiki.archlinux.org/title/btrfs#Mounting_subvolume_as_root. I find it
+helpful when supporting rollbacks of this "root" sub-volume.
 
 Refresh grub config file:
 
@@ -234,7 +243,8 @@ Refresh grub config file:
 #+end_src
 
 The =mkconfig= will populate the Kernel argument =rootflags=subvol...= in
-=/boot/grub/grub.cfg= with the btrfs default volume. See
+=/boot/grub/grub.cfg= with the btrfs default volume (or the one used in =mount =-o=)
+*unless* set in =/etc/default/grub= (which we prefer and do above). See
 https://bbs.archlinux.org/viewtopic.php?pid=1615373 for more.
 
 ** Users
@@ -398,16 +408,13 @@ https://wiki.archlinux.org/title/snapper#Restoring_/_to_its_previous_snapshot
 #+begin_src bash
   $ cryptsetup open /dev/sda3 root
   $ mount -o subvolid=5 /dev/mapper/root /mnt
-  $ mv /mnt/@ /mnt/home/bruno/@.broken{date}
+  $ btrfs subvol delete /mnt/@
   $ btrfs subvol snapshot /mnt/@.snapshots/{number}/snapshot /mnt/@
   $ umount -R /mnt
-  $ mount -o subvol=@ /dev/mapper/root /mnt
-  $ mount /dev/sda1 /mnt/boot
-  $ arch-chroot /mnt
-  $ grub-mkconfig -o /boot/grub/grub.conf
-  $ mkinitcpio -P
-  $ exit
-  $ umount -R /mnt
 #+end_src
+
+This relies on having =subvol=@= in =rootflags= in GRUB. The wiki says I should
+regenerate the initramfs image, but I don't find it necessary. Maybe when we are
+rolling back a Kernel?
 
 Reboot.
