@@ -386,3 +386,13 @@ And,
   $ systemctl start snapper-cleanup.timer
   $ systemctl enable snapper-cleanup.timer
 #+end_src
+
+* Rollback
+
+https://wiki.archlinux.org/title/snapper#Restoring_/_to_its_previous_snapshot
+
+Here is how I mount a btrfs sub volume:
+
+#+begin_src bash
+  mount /dev/mapper/root -o subvol=@ /mnt
+#+end_src
