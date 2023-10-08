@@ -233,6 +233,10 @@ Refresh grub config file:
   $ grub-mkconfig -o /boot/grub/grub.cfg
 #+end_src
 
+The =mkconfig= will populate the Kernel argument =rootflags=subvol...= in
+=/boot/grub/grub.cfg= with the btrfs default volume. See
+https://bbs.archlinux.org/viewtopic.php?pid=1615373 for more.
+
 ** Users
 
 At minimum, I install a user for myself.
@@ -391,8 +395,19 @@ And,
 
 https://wiki.archlinux.org/title/snapper#Restoring_/_to_its_previous_snapshot
 
-Here is how I mount a btrfs sub volume:
-
 #+begin_src bash
-  mount /dev/mapper/root -o subvol=@ /mnt
+  $ cryptsetup open /dev/sda3 root
+  $ mount -o subvolid=5 /dev/mapper/root /mnt
+  $ mv /mnt/@ /mnt/home/bruno/@.broken{date}
+  $ btrfs subvol snapshot /mnt/@.snapshots/{number}/snapshot /mnt/@
+  $ umount -R /mnt
+  $ mount -o subvol=@ /dev/mapper/root /mnt
+  $ mount /dev/sda1 /mnt/boot
+  $ arch-chroot /mnt
+  $ grub-mkconfig -o /boot/grub/grub.conf
+  $ mkinitcpio -P
+  $ exit
+  $ umount -R /mnt
 #+end_src
+
+Reboot.
