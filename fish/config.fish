@@ -10,7 +10,7 @@ alias pbpaste "xsel --clipboard --output"
 # Aliases.
 alias sys_update "fish -c ~/devel/dotfiles/sys_update.sh"
 alias grep "rg"
-alias latr "ls -latr"
+alias ll "ls -ltrh"
 alias docker_rmi_dangling "docker rmi (docker images -qa -f 'dangling=true')"
 alias emacs "emacsclient -c"
 
