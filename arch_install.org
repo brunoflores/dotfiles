@@ -259,7 +259,7 @@ At minimum, I install a user for myself.
 Add myself to sudoers:
 
 #+begin_src bash
-  $ gpasswd -a bruno whell
+  $ gpasswd -a bruno wheel
 #+end_src
 
 Configure =/etc/sudoers= to allow members of wheel to execute any command.
