@@ -37,7 +37,7 @@ Use use the recommended 300Mb for the UEFI partition. I tend to use 1Gb for swap
 
 * Disk Encryption
 
-I use disk encruption with =passphrase= and only encrypt my root partion. I do not
+I use disk encryption with =passphrase= and only encrypt my root partition. I do not
 encrypt my boot partition.
 
 Load module =dm_crypt=:
