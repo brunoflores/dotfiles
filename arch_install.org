@@ -126,7 +126,7 @@ The reason why I use =fs_passno= 0 (except for the /) is explained in more detai
 here https://man.archlinux.org/man/fsck.btrfs.8.en
 
 The sub-volume =@.snapshots= will be replaced below during snapper
-configuration. Maybe we should avoid creating it here to evoid the extra work
+configuration. Maybe we should avoid creating it here to avoid the extra work
 later.
 
 * Chrooted with =arch-chroot=
