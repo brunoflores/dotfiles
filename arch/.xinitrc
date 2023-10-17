@@ -43,7 +43,4 @@ fi
 # Map CapsLock to Ctrl:
 setxkbmap -option ctrl:swapcaps
 
-# Set screen resolution:
-xrandr --output Virtual1 --mode 1920x1200
-
 exec i3

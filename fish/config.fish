@@ -12,6 +12,10 @@ alias sys_update "fish -c ~/devel/dotfiles/sys_update.sh"
 alias grep "rg"
 alias latr "ls -latr"
 alias docker_rmi_dangling "docker rmi (docker images -qa -f 'dangling=true')"
+# alias emacs "emacsclient -c"
+
+# Set our default text editor
+set -gx EDITOR "emacsclient --tty"
 
 # Merge history from other terminal windows.
 history --merge
@@ -26,6 +30,5 @@ end
 # Load the default Opam switch.
 eval (opam env --switch=default)
 
-# Added automatically by Opam:
 # opam configuration
 source /home/bruno/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
