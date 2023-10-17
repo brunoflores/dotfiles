@@ -147,7 +147,7 @@ Enable:
 
 ** Initial ramdisk
 
-Add =encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =udev,= and between =block= and
+Add =encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =udev=, and between =block= and
 =filesystems=).
 
 Because we use the busybox-based =initramfs= with the =encrypt= hook, we can decrypt
