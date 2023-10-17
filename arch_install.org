@@ -116,10 +116,10 @@ them to mount. Here follow the [[https://wiki.archlinux.org/title/snapper#Sugges
 Add them to our =/etc/fstab=:
 
 #+begin_src bash
-  UUID=root  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
-  UUID=root  /home        btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@home        0  0
-  UUID=root  /.snapshots  btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots  0  0
-  UUID=root  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
+  LABEL=root  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
+  LABEL=root  /home        btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@home        0  0
+  LABEL=root  /.snapshots  btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots  0  0
+  LABEL=root  /var/log     btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@var_log     0  0
 #+end_src
 
 The reason why I use =fs_passno= 0 (except for the /) is explained in more detail
