@@ -426,7 +426,7 @@ Kernel:
 #+end_src
 
 We regenerate the initramfs image because =vmlinuz-linux= and
-=initramfs-linux.img= at in a separate partition (mounted at =/boot=).
+=initramfs-linux.img= are in a separate partition (mounted at =/boot=).
 
 This process relies on having =subvol=@= in =rootflags= in GRUB. That's why we don't
 need to reconfigure the bootloader.
