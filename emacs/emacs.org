@@ -61,6 +61,12 @@ configuration is "buffer local".
                 scroll-conservatively 10000)
 #+end_src
 
+One can instruct Emacs to always resolve symlinks, at a performance cost:
+
+#+begin_src emacs-lisp
+  ;(setq find-file-visit-truename t)
+#+end_src
+
 * Theme
 
 #+begin_src emacs-lisp
