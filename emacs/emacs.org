@@ -67,6 +67,15 @@ One can instruct Emacs to always resolve symlinks, at a performance cost:
   ;(setq find-file-visit-truename t)
 #+end_src
 
+Winner Mode is a global minor mode that allows you to “undo” and “redo” changes
+in WindowConfiguration. Here we navigate our window history:
+
+#+begin_src emacs-lisp
+  (winner-mode +1)
+  (define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
+  (define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
+#+end_src
+
 * Theme
 
 #+begin_src emacs-lisp
