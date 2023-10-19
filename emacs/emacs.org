@@ -114,6 +114,10 @@ Enable some default modes.
     (which-key-mode))
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package rainbow-mode)
+#+end_src
+
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
