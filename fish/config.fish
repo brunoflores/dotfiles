@@ -32,3 +32,6 @@ eval (opam env --switch=default)
 
 # opam configuration
 source /home/bruno/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+
+# Rust
+set -gx PATH "$HOME/.cargo/bin" $PATH
