@@ -13,6 +13,7 @@ alias grep "rg"
 alias ll "ls -ltrh"
 alias docker_rmi_dangling "docker rmi (docker images -qa -f 'dangling=true')"
 alias emacs "emacsclient -c"
+alias tlmgr "/usr/share/texmf-dist/scripts/texlive/tlmgr.pl --usermode"
 
 # Set our default text editor
 set -gx EDITOR "emacsclient --tty"
