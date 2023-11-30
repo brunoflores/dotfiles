@@ -34,6 +34,12 @@
 (setq-default scroll-step 1
               scroll-conservatively 10000)
 
+;(setq find-file-visit-truename t)
+
+(winner-mode +1)
+;(define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
+;(define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
+
 (load-theme 'wombat t)
 (set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
 
@@ -64,6 +70,21 @@
   :diminish
   :init
   (which-key-mode))
+
+(use-package rainbow-mode)
+
+(setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
+(require 'ott-mode)
+
+(load "~/devel/HOL/tools/hol-mode")
+(load "~/devel/HOL/tools/hol-unicode")
+
+(use-package yasnippet
+  :config
+  (yas-global-mode))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
 
 ;; Make ESC quit prompts.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -196,8 +217,6 @@
 (use-package lsp-ivy
   :commands lsp-ivy-workspace-symbol)
 
-(use-package yasnippet) ; Used by lsp-mode.
-
 ;; https://github.com/emacsorphanage/git-gutter
 (use-package git-gutter
   :diminish
@@ -228,6 +247,13 @@
 
 (use-package ocamlformat
   :hook (before-save . ocamlformat-before-save))
+
+(use-package utop
+  :config
+  ;; Use the opam installed utop
+  (setq utop-command "opam exec -- utop -emacs"))
+
+(use-package fstar-mode)
 
 (defun org-mode-setup ()
   (org-indent-mode)
@@ -261,7 +287,7 @@
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time) ; Use current time with completing a task
   (org-log-into-drawer t) ; Put properties in closed drawer
-  (org-directory "~/devel/org-mode-my-files")
+  ;(org-directory "~/devel/org-mode-my-files")
   (org-deadline-warning-days 2)
   ; Files to be used for agenda display:
   (org-agenda-files '("tasks.org"))
@@ -284,7 +310,10 @@
 
 ;; Center text.
 (use-package visual-fill-column
-  :hook (org-mode . org-mode-visual-fill))
+  :hook
+  (org-mode . org-mode-visual-fill)
+  (tuareg-mode . org-mode-visual-fill)
+  (markdown-mode . org-mode-visual-fill))
 
 (use-package org-roam
   :custom
@@ -306,11 +335,15 @@
       (file "~/devel/dotfiles/org-roam/template-book.org")
       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
       :unnarrowed t)))
-  :bind (("C-c n l" . org-roam-buffer-toggle)
+  :bind (("C-c n i" . org-roam-node-insert)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
          ("C-c n c" . org-roam-capture)
+         ("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n a a" . org-roam-alias-add)
+         ("C-c n a d" . org-roam-alias-remove)
+         ("C-c n t a" . org-roam-tag-add)
+         ("C-c n t d" . org-roam-tag-remove)
          ;; Dailies
          ("C-c n d j" . org-roam-dailies-capture-today)
          ("C-c n d y" . org-roam-dailies-capture-yesterday)
@@ -318,14 +351,39 @@
          :map org-mode-map
          ("s-i" . completion-at-point))
   :config
+  ;; Configure what sections are displayed in the Org-roam buffer:
+  (setq org-roam-mode-sections
+    (list #'org-roam-backlinks-section
+          #'org-roam-reflinks-section
+          #'org-roam-unlinked-references-section))
   ;; If you're using a vertical completion framework, you might want
   ;; a more informative completion interface.
   (setq org-roam-node-display-template
         (concat "${title:*} "
                 (propertize "${tags:30}" 'face 'org-tag)))
+  ;; Setup Org-roam to run functions on file changes to maintain
+  ;; cache consistency:
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
+
+(use-package deft
+  :after org-roam
+  :bind
+  ;("C-c d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filename-as-title nil)
+  (deft-use-filter-string-for-filename t)
+  (deft-file-naming-rules '((noslash . "-")
+                            (nospace . "-")
+                            (case-fn . downcase)))
+  (deft-text-mode 'org-mode)
+  (deft-default-extension "org")
+  (deft-directory org-roam-directory)
+  (deft-auto-save-interval 300))
+
+(use-package flyspell)
 
 ;; Evalute Babel code without asking for confirmation.
 (set 'org-confirm-babel-evaluate nil)
@@ -346,7 +404,16 @@
 
 (use-package pdf-tools
   :config
-  (pdf-tools-install))
+  (pdf-tools-install)
+  (setq pdf-annot-default-annotation-properties
+        '((highlight
+           (color . "gold"))
+          (underline
+           (color . "blue"))
+          (squiggly
+           (color . "orange"))
+          (strike-out
+           (color . "red")))))
 
 (use-package geiser)
 (use-package geiser-guile)

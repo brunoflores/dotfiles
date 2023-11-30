@@ -72,8 +72,8 @@ in WindowConfiguration. Here we navigate our window history:
 
 #+begin_src emacs-lisp
   (winner-mode +1)
-  (define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
-  (define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
+  ;(define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
+  ;(define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
 #+end_src
 
 * Theme
@@ -125,6 +125,25 @@ Enable some default modes.
 
 #+begin_src emacs-lisp
   (use-package rainbow-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+  (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
+  (require 'ott-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+  (load "~/devel/HOL/tools/hol-mode")
+  (load "~/devel/HOL/tools/hol-unicode")
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :config
+    (yas-global-mode))
+
+  (use-package yasnippet-snippets
+    :after yasnippet)
 #+end_src
 
 * Keyboard shortcuts
@@ -318,8 +337,6 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
-
-  (use-package yasnippet) ; Used by lsp-mode.
 #+end_src
 
 * Programming Environments
@@ -366,65 +383,81 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :hook (before-save . ocamlformat-before-save))
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package utop
+    :config
+    ;; Use the opam installed utop
+    (setq utop-command "opam exec -- utop -emacs"))
+#+end_src
+
+** fstar
+
+#+begin_src emacs-lisp
+  (use-package fstar-mode)
+#+end_src
+
 ** Org Mode
 
 #+begin_src emacs-lisp
-  (defun org-mode-setup ()
-    (org-indent-mode)
-    (diminish 'org-indent-mode))
+        (defun org-mode-setup ()
+          (org-indent-mode)
+          (diminish 'org-indent-mode))
 
-  (defun org-mode-font-setup ()
-    ;; Set faces for heading levels
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      (set-face-attribute (car face) nil
-                          :font "Cantarell" :weight 'regular
-                          :height (cdr face))))
+        (defun org-mode-font-setup ()
+          ;; Set faces for heading levels
+          (dolist (face '((org-level-1 . 1.2)
+                          (org-level-2 . 1.1)
+                          (org-level-3 . 1.05)
+                          (org-level-4 . 1.0)
+                          (org-level-5 . 1.1)
+                          (org-level-6 . 1.1)
+                          (org-level-7 . 1.1)
+                          (org-level-8 . 1.1)))
+            (set-face-attribute (car face) nil
+                                :font "Cantarell" :weight 'regular
+                                :height (cdr face))))
 
-  (use-package org
-    :after
-    (git-gutter)
-    :hook
-    (org-mode . org-mode-setup)
-    (org-mode . git-gutter-mode)
-    :custom
-    (org-ellipsis " …")
-    (org-hide-emphasis-markers t)
+        (use-package org
+          :after
+          (git-gutter)
+          :hook
+          (org-mode . org-mode-setup)
+          (org-mode . git-gutter-mode)
+          :custom
+          (org-ellipsis " …")
+          (org-hide-emphasis-markers t)
 
-    ; Agenda:
-    (org-agenda-start-with-log-mode t)
-    (org-log-done 'time) ; Use current time with completing a task
-    (org-log-into-drawer t) ; Put properties in closed drawer
-    (org-directory "~/devel/org-mode-my-files")
-    (org-deadline-warning-days 2)
-    ; Files to be used for agenda display:
-    (org-agenda-files '("tasks.org"))
+          ; Agenda:
+          (org-agenda-start-with-log-mode t)
+          (org-log-done 'time) ; Use current time with completing a task
+          (org-log-into-drawer t) ; Put properties in closed drawer
+          ;(org-directory "~/devel/org-mode-my-files")
+          (org-deadline-warning-days 2)
+          ; Files to be used for agenda display:
+          (org-agenda-files '("tasks.org"))
 
-    :config
-    (org-mode-font-setup)
-    ;; Remove the default underline style from elipsis.
-    (set-face-underline 'org-ellipsis nil))
+          :config
+          (org-mode-font-setup)
+          ;; Remove the default underline style from elipsis.
+          (set-face-underline 'org-ellipsis nil))
 
-  ;; Replace stars with utf-8 chars.
-  (use-package org-bullets
-    :hook (org-mode . org-bullets-mode)
-    :custom
-    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+        ;; Replace stars with utf-8 chars.
+        (use-package org-bullets
+          :hook (org-mode . org-bullets-mode)
+          :custom
+          (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-  (defun org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
-          visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
+        (defun org-mode-visual-fill ()
+          (setq visual-fill-column-width 100
+                visual-fill-column-center-text t)
+          (visual-fill-column-mode 1))
 
-  ;; Center text.
-  (use-package visual-fill-column
-    :hook (org-mode . org-mode-visual-fill))
+        ;; Center text.
+        (use-package visual-fill-column
+          :hook
+          (org-mode . org-mode-visual-fill)
+          (tuareg-mode . org-mode-visual-fill)
+          (markdown-mode . org-mode-visual-fill))
 #+end_src
 
 ** Org Roam
@@ -483,8 +516,27 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     (require 'org-roam-protocol))
 #+end_src
 
-#+RESULTS:
-: completion-at-point
+#+begin_src emacs-lisp
+  (use-package deft
+    :after org-roam
+    :bind
+    ;("C-c d" . deft)
+    :custom
+    (deft-recursive t)
+    (deft-use-filename-as-title nil)
+    (deft-use-filter-string-for-filename t)
+    (deft-file-naming-rules '((noslash . "-")
+                              (nospace . "-")
+                              (case-fn . downcase)))
+    (deft-text-mode 'org-mode)
+    (deft-default-extension "org")
+    (deft-directory org-roam-directory)
+    (deft-auto-save-interval 300))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package flyspell)
+#+end_src
 
 ** Babel
 
@@ -516,7 +568,16 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 #+begin_src emacs-lisp
   (use-package pdf-tools
     :config
-    (pdf-tools-install))
+    (pdf-tools-install)
+    (setq pdf-annot-default-annotation-properties
+          '((highlight
+             (color . "gold"))
+            (underline
+             (color . "blue"))
+            (squiggly
+             (color . "orange"))
+            (strike-out
+             (color . "red")))))
 #+end_src
 
 ** Scheme
