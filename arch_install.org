@@ -5,15 +5,12 @@ https://wiki.archlinux.org/title/installation_guide
 
 * System Overview
 
-** GRUB bootloader
+** =systemd-boot=  bootloader (https://wiki.archlinux.org/title/systemd-boot)
 ** Booted in UEFI mode
 ** Busybox-based =initramfs= with the =encrypt= hook
-** Partitions: =efi=,  =root= and =swap=
-** Filesystem is =btrfs= (using the entirety of the =root= partition)
-** Suspend-to-disk support (Work in progress!)
+** Partitions: =efi=, =root=
+** Filesystem is =btrfs= (the =root= partition)
 ** Disk encryption of the =root= partition with passphrase
-** Disk encryption of the =swap= partition with passphrase
-*** We encrypt =swap= so that we can safely suspend (hibernate) to disk
 
 * Steps
 
@@ -27,13 +24,13 @@ Check that our system is booted in 64-bit x64 UEFI mode:
 Partition table:
 
 #+begin_src bash
-  /dev/sda1  300M       ef  EFI (FAT 32)
-  /dev/sda2  1G         82  Linux swap   (encrypted)
-  /dev/sda3  remaining  83  Linux        (encrypted)
+  $ fdisk --list
+  [...]
+  Device           Start        End   Sectors   Size Type
+  /dev/nvme0n1p1    2048    1050623   1048576   512M EFI System
+  /dev/nvme0n1p2 1050624 1000214527 999163904 476.4G Linux filesystem
+  [...]
 #+end_src
-
-Use use the recommended 300Mb for the UEFI partition. I tend to use 1Gb for swap
-*in virtual machines*, and more (at least 2Gb) when installing on hardware.
 
 * Disk Encryption
 
@@ -49,23 +46,15 @@ Load module =dm_crypt=:
 Format the encrypted container for =root= and then open it:
 
 #+begin_src bash
-  $ cryptsetup luksFormat --type luks2 --label=root /dev/sda3
-  $ cryptsetup open /dev/sda3 root
-#+end_src
-
-Format the encrypted container for =swap= and then open it:
-
-#+begin_src bash
-  $ cryptsetup luksFormat --type luks2 --label=swap /dev/sda2
-  $ cryptsetup open /dev/sda2 swap
+  $ cryptsetup luksFormat --type luks2 --label=root /dev/xxx
+  $ cryptsetup open /dev/xxx root
 #+end_src
 
 Once opened, the root partition device address would be =/dev/mapper/root= instead
-of the partition (e.g. =/dev/sda3=). The swap is =/dev/mapper/swap=. In order
-to write encrypted data into the partition it must be accessed through
-the device mapped name.
+of the partition (e.g. =/dev/xxx=). In order to write encrypted data into the
+partition it must be accessed through the device mapped name.
 
-To close a LUKS container named "root" (unusual), unmount the partition and then
+(Hardly ever needed) To close a LUKS container named "root", unmount the partition and then
 do:
 
 #+begin_src bash
@@ -75,8 +64,7 @@ do:
 Make and format our filesystems. The UEFI partition must be FAT 32.
 
 #+begin_src bash
-  $ mkfs.fat -F 32 -n boot /dev/sda1
-  $ mkswap -L swap /dev/mapper/swap
+  $ mkfs.fat -F 32 -n boot /dev/xxx
   $ mkfs.btrfs -L root /dev/mapper/root
 #+end_src
 
@@ -86,7 +74,6 @@ Mount our partitions. The mount devices and compression argument will be used by
 #+begin_src bash
   $ mount -o compress=zstd:3 LABEL=root /mnt
   $ mount --mkdir LABEL=boot /mnt/boot
-  $ swapon /dev/mapper/swap
 #+end_src
 
 Bootstrap:
@@ -113,7 +100,7 @@ them to mount. Here follow the [[https://wiki.archlinux.org/title/snapper#Sugges
   $ btrfs subvol create /mnt/@var_log
 #+end_src
 
-Add them to our =/etc/fstab=:
+Ensure they are in  our =/etc/fstab=:
 
 #+begin_src bash
   LABEL=root  /            btrfs  rw,relatime,compress=zstd:3,space_cache=v2,subvol=@            0  1
@@ -127,7 +114,7 @@ here https://man.archlinux.org/man/fsck.btrfs.8.en
 
 The sub-volume =@.snapshots= will be replaced below during snapper
 configuration. Maybe we should avoid creating it here to avoid the extra work
-later.
+later...
 
 * Chrooted with =arch-chroot=
 
@@ -147,46 +134,17 @@ Enable:
 
 ** Initial ramdisk
 
-Add =encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =udev=, and between =block= and
-=filesystems=).
-
-Because we use the busybox-based =initramfs= with the =encrypt= hook, we can decrypt
-only a single partition at boot-time. We are required to create a =hook= in
-=/etc/mkinitcpio.conf= to open the swap LUKS device before resuming from
-hibernation and after botting.
-
-Create =/etc/initcpio/hooks/openswap=:
+Add =sd-encrypt= to HOOKS in =/etc/mkinitcpio.conf= (after =systemd=, and between =block= and
+=filesystems=). Here's what the entire =HOOKS= looks like:
 
 #+begin_src bash
-  run_hook ()
-  {
-    cryptsetup open /dev/sda2 swap
-  }
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
 #+end_src
 
-Create =/etc/initcpio/install/openswap=:
-
-#+begin_src bash
-  build ()
-  {
-    add_runscript
-  }
-
-  help ()
-  {
-  cat<<HELPEOF
-    This opens the swap encrypted partition /dev/sda2 in /dev/mapper/swap
-  HELPEOF
-  }
-#+end_src
-
-Add the hook =openswap= in the =HOOKS= array in =/etc/mkinitcpio.conf=, before
-=filesystem= but after =encrypt=. Do not forget to add the =resume= hook after
-=openswap=.
-
-#+begin_src bash
-  HOOKS=(... encrypt openswap resume filesystems ...)
-#+end_src
+*A note on firmware*: The =microcode= hook goes after =autodetect= so only the
+required firmware is added to the image. Forthe =microcode= hook to work, probably
+need to install the package =intel-ucode=
+(https://wiki.archlinux.org/title/microcode).
 
 Regenerate the =initramfs=:
 
@@ -194,16 +152,20 @@ Regenerate the =initramfs=:
   $ mkinitcpio -P
 #+end_src
 
-** GRUB
+** systemd-boot (bootloader)
 
-Install =grub= and =efibootmgr=:
+https://wiki.archlinux.org/title/systemd-boot
+
+Install the UEFI boot manager:
 
 #+begin_src bash
-  $ pacman -S grub efibootmgr
+  $ bootctl install
 #+end_src
 
-*Before* running =grubs='s installation script, set the default =btrfs= volume to be
-the root of our filesystem so we don't have to pass it as a kernel argument:
+This should put the bootloader in =/boot/EFI=.
+
+Set the default =btrfs= volume to be the root of our filesystem so we don't have
+to pass it as a kernel argument:
 
 Install =btrfs-progs= if needed.
 
@@ -211,41 +173,30 @@ Install =btrfs-progs= if needed.
   $ btrfs subvol set-default 5 /
 #+end_src
 
-Run =grub='s installation script:
+*Loader configuration*: Check =loader.conf=:
 
 #+begin_src bash
-  $ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+  $ cat /boot/loader/loader.conf
+  timeout 3
+  console-mode keep
 #+end_src
 
-The script =grub-install= must be executed after every change of the default
-sub-volume! We avoid that by always having =5= (root) as default, and instead
-passing =subvol=@= via Kernel parameters below (=rootflags=).
-
-Configure kernel arguments in =/etc/default/grub=. In my
-=GRUB_CMDLINE_LINUX_DEFAULT= I add the following, using labels that we set when
-creating the filesystems:
+Check our Arch loader:
 
 #+begin_src bash
-  rootflags=subvol=@
-  resume=LABEL=swap
-  root=LABEL=root
-  cryptdevice=LABEL=root:root
+  $ cat /boot/loader/entries/arch.conf
+  title   Arch Linux
+  linux   /vmlinuz-linux
+  initrd  /initramfs-linux.img
+  options rw rd.luks.name=971c205a-e646-4914-8d7c-ed6a01ec360b=root rootflags=subvol=@ root=/dev/mapper/root loglevel=3 quiet
 #+end_src
 
-The =subvol= in =rootflags= have to do with
-https://wiki.archlinux.org/title/btrfs#Mounting_subvolume_as_root. I find it
-helpful when supporting rollbacks of this "root" sub-volume.
-
-Refresh grub config file:
-
-#+begin_src bash
-  $ grub-mkconfig -o /boot/grub/grub.cfg
-#+end_src
-
-The =mkconfig= will populate the Kernel argument =rootflags=subvol...= in
-=/boot/grub/grub.cfg= with the btrfs default volume (or the one used in =mount =-o=)
-*unless* set in =/etc/default/grub= (which we prefer and do above). See
-https://bbs.archlinux.org/viewtopic.php?pid=1615373 for more.
+Where:
+  + =root= is the UUID of the *decrypted* device
+  + =rd.luks.name= is the UUID of the *encrypted* device
+  + =subvol= in =rootflags= have to do with
+    https://wiki.archlinux.org/title/btrfs#Mounting_subvolume_as_root. I find it
+    helpful when supporting rollbacks of this "root" sub-volume.
 
 ** Users
 
