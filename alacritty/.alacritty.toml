@@ -1,0 +1,27 @@
+[cursor.style]
+blinking = "On"
+shape = "Block"
+
+[font]
+size = 10.0
+
+[font.bold]
+family = "monospace"
+style = "Bold"
+
+[font.bold_italic]
+family = "monospace"
+style = "Bold Italic"
+
+[font.italic]
+family = "monospace"
+style = "Italic"
+
+[font.normal]
+family = "monospace"
+style = "Regular"
+
+[window]
+decorations_theme_variant = "Dark"
+dynamic_title = true
+opacity = 0.95
