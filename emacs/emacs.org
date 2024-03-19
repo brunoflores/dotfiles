@@ -537,6 +537,13 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
   (use-package flyspell)
 #+end_src
 
+** Latex
+
+#+begin_src emacs-lisp
+  (use-package tex
+    :ensure auctex)
+#+end_src
+
 ** Babel
 
 #+begin_src emacs-lisp
