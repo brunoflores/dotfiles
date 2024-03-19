@@ -312,7 +312,6 @@
 (use-package visual-fill-column
   :hook
   (org-mode . org-mode-visual-fill)
-  (tuareg-mode . org-mode-visual-fill)
   (markdown-mode . org-mode-visual-fill))
 
 (use-package org-roam
@@ -385,6 +384,9 @@
 
 (use-package flyspell)
 
+(use-package tex
+  :ensure auctex)
+
 ;; Evalute Babel code without asking for confirmation.
 (set 'org-confirm-babel-evaluate nil)
 
@@ -398,7 +400,8 @@
 ;; Enable Babel languages.
 (org-babel-do-load-languages
  'org-babel-load-languages '((ocaml . t)
-                             (emacs-lisp . t)))
+                             (emacs-lisp . t)
+                             (latex . t)))
 
 (use-package sml-mode)
 
@@ -417,6 +420,16 @@
 
 (use-package geiser)
 (use-package geiser-guile)
+
+(load-file (let ((coding-system-for-read 'utf-8))
+             (shell-command-to-string "agda-mode locate")))
+
+(use-package rust-mode
+  :config
+  ; Force indentation to use spaces.
+  (indent-tabs-mode nil)
+  (rust-enable-format-on-save)
+  (prettify-symbols-mode))
 
 (use-package vterm)
 
