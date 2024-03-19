@@ -1,4 +1,4 @@
 #!/bin/sh
 
-feh --bg-scale ~/wallpapers/DSCF5618.JPG
+# feh --bg-scale ~/wallpapers/DSCF5618.JPG
 
