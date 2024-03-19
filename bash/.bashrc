@@ -19,6 +19,9 @@ if [[ ! -f "$SSH_AUTH_SOCK" ]]; then
     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 fi
 
+# GHCup only provides a bash script (not for Fish):
+source ~/.ghcup/env
+
 # Our approach here is to use bash in passwd as our
 # default sheel, then call out to fish.
 exec fish
