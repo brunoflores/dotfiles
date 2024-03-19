@@ -456,7 +456,6 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
         (use-package visual-fill-column
           :hook
           (org-mode . org-mode-visual-fill)
-          (tuareg-mode . org-mode-visual-fill)
           (markdown-mode . org-mode-visual-fill))
 #+end_src
 
