@@ -560,7 +560,8 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
   ;; Enable Babel languages.
   (org-babel-do-load-languages
    'org-babel-load-languages '((ocaml . t)
-                               (emacs-lisp . t)))
+                               (emacs-lisp . t)
+                               (latex . t)))
 #+end_src
 
 ** Standard ML
