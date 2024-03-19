@@ -36,3 +36,9 @@ source /home/bruno/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
 
 # Rust
 set -gx PATH "$HOME/.cargo/bin" $PATH
+
+# Add ~/.local/bin to PATH
+set -gx PATH "$HOME/.local/bin" $PATH
+
+# Set LD_LIBRARY_PATH
+set -gx LD_LIBRARY_PATH "/usr/local/lib" $LD_LIBRARY_PATH
