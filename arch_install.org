@@ -192,8 +192,9 @@ Check our Arch loader:
 #+end_src
 
 Where:
-  + =root= is the UUID of the *decrypted* device
   + =rd.luks.name= is the UUID of the *encrypted* device
+  + =root= can safely point to the *decrypted* device by name (in =/dev/mapper/root=)
+    because that's how we named it above
   + =subvol= in =rootflags= have to do with
     https://wiki.archlinux.org/title/btrfs#Mounting_subvolume_as_root. I find it
     helpful when supporting rollbacks of this "root" sub-volume.
