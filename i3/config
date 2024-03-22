@@ -190,8 +190,8 @@ bindsym $mod+r mode "resize"
 # }
 
 # Gaps are spacing between and around windows
-gaps inner 10px
-gaps outer 20px
+gaps inner 5px
+gaps outer 5px
 
 # Color table
 # class                 border  backgr. text    indicator child_border
