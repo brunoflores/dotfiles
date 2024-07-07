@@ -635,6 +635,11 @@ https://agda.readthedocs.io/en/v2.6.4.1/getting-started/installation.html
     (prettify-symbols-mode))
 #+end_src
 
+** JSON
+#+begin_src emacs-lisp
+  (use-package json-mode)
+#+end_src
+
 * Terminals
 
 We use vterm with defaults for the momment.
