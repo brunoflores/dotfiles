@@ -471,6 +471,14 @@ rich text word:
     :hook
     (org-mode . org-appear-mode))
 #+end_src
+
+Allow me to change the size of an image as displayed in Org mode while leaving
+the actual file unchanged:
+
+#+begin_src emacs-lisp
+  (setq-default org-image-actual-width nil)
+#+end_src
+
 ** Org Roam
 
 #+begin_src emacs-lisp
