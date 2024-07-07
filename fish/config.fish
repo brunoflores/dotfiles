@@ -32,7 +32,7 @@ if status is-interactive
 end
 
 # Load the default Opam switch.
-eval (opam env --switch=default)
+eval (opam env --set-switch)
 
 # opam configuration
 source /home/bruno/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
