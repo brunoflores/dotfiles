@@ -463,6 +463,14 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
           (markdown-mode . org-mode-visual-fill))
 #+end_src
 
+The org-appear package helps by displaying the markers while the cursor is on a
+rich text word:
+
+#+begin_src emacs-lisp
+  (use-package org-appear
+    :hook
+    (org-mode . org-appear-mode))
+#+end_src
 ** Org Roam
 
 #+begin_src emacs-lisp
