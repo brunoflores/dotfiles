@@ -14,7 +14,7 @@ Configure package repositories.
 #+end_src
 
 Configuration and loading of packages:
-Install and enable use-package and configure to always install if not present.
+Install and enable =use-package= and configure to always install if not present.
 
 #+begin_src emacs-lisp
   (unless (package-installed-p 'use-package)
