@@ -116,6 +116,7 @@ Enable some default modes.
   ;; Save place in each file.
   (save-place-mode t)
 
+  ;; Break lines at right margin.
   (auto-fill-mode)
 #+end_src
 
