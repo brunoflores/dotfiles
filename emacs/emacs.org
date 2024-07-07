@@ -44,6 +44,9 @@ Set some global default values. We use only =setq-default= in case a
 configuration is "buffer local".
 
 #+begin_src emacs-lisp
+  ;; Keep point at the same screen position when scrolling up and down pages.
+  (setq-default scroll-preserve-screen-position t)
+
   ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
   (setq-default fill-column 80)
   (setq-default inhibit-startup-message t)
@@ -58,7 +61,7 @@ configuration is "buffer local".
   ;; Smoother scrolling from
   ;; https://www.emacswiki.org/emacs/SmoothScrolling
   (setq-default scroll-step 1
-                scroll-conservatively 10000)
+		scroll-conservatively 10000)
 #+end_src
 
 One can instruct Emacs to always resolve symlinks, at a performance cost:
