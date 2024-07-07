@@ -640,6 +640,12 @@ https://agda.readthedocs.io/en/v2.6.4.1/getting-started/installation.html
   (use-package json-mode)
 #+end_src
 
+** Go
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :hook (before-save . gofmt-before-save))
+#+end_src
+
 * Terminals
 
 We use vterm with defaults for the momment.
