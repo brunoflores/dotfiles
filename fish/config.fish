@@ -2,6 +2,9 @@ if status is-interactive
     # Commands to run in interactive sessions can go here
 end
 
+# Supress welcome message
+set fish_greeting
+
 # Copy and Paste.
 # Requires `pacman -S xsel`
 alias pbcopy "xsel --clipboard --input"
