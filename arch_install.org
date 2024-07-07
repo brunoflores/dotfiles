@@ -384,3 +384,7 @@ This process relies on having =subvol=@= in =rootflags= in GRUB. That's why we d
 need to reconfigure the bootloader.
 
 Reboot.
+
+* cron
+
+I use =cronie= for crontab management: =pacman -S cronie=. It installs the =crontab= command.
