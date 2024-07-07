@@ -220,12 +220,6 @@ Configure =/etc/sudoers= to allow members of wheel to execute any command.
 
 * Checks after first reboot
 
-Swap status:
-
-#+begin_src bash
-  $ swapon --show
-#+end_src
-
 Internet connection:
 
 #+begin_src bash
