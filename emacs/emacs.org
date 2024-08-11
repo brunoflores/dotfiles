@@ -618,12 +618,15 @@ the actual file unchanged:
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("ocaml" . "src ocaml"))
   (add-to-list 'org-structure-template-alist '("bash" . "src bash"))
+  (add-to-list 'org-structure-template-alist '("js" . "src js"))
+  (add-to-list 'org-structure-template-alist '("json" . "src json"))
 
   ;; Enable Babel languages.
   (org-babel-do-load-languages
    'org-babel-load-languages '((ocaml . t)
                                (emacs-lisp . t)
-                               (latex . t)))
+                               (latex . t)
+                               (js . t)))
 #+end_src
 
 ** Standard ML
