@@ -9,6 +9,22 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+	"straight/repos/straight.el/bootstrap.el"
+	(or (bound-and-true-p straight-base-dir)
+	    user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
 ;; Add :diminish to keep minor modes out of the mode line.
 (use-package diminish)
 
@@ -17,6 +33,9 @@
 
 ;; In all prog modes, display line numbers on the left margin.
 (add-hook 'prog-mode-hook (lambda () (display-line-numbers-mode t)))
+
+;; Keep point at the same screen position when scrolling up and down pages.
+(setq-default scroll-preserve-screen-position t)
 
 ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
 (setq-default fill-column 80)
@@ -32,13 +51,30 @@
 ;; Smoother scrolling from
 ;; https://www.emacswiki.org/emacs/SmoothScrolling
 (setq-default scroll-step 1
-              scroll-conservatively 10000)
+	      scroll-conservatively 10000)
 
 ;(setq find-file-visit-truename t)
 
 (winner-mode +1)
 ;(define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
 ;(define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
+
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 (load-theme 'wombat t)
 (set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
@@ -64,6 +100,7 @@
 ;; Save place in each file.
 (save-place-mode t)
 
+;; Break lines at right margin.
 (auto-fill-mode)
 
 (use-package which-key
@@ -314,6 +351,12 @@
   (org-mode . org-mode-visual-fill)
   (markdown-mode . org-mode-visual-fill))
 
+(use-package org-appear
+  :hook
+  (org-mode . org-appear-mode))
+
+(setq-default org-image-actual-width nil)
+
 (use-package org-roam
   :custom
   (org-roam-directory (file-truename "~/devel/org-roam-my-files/"))
@@ -396,12 +439,15 @@
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("ocaml" . "src ocaml"))
 (add-to-list 'org-structure-template-alist '("bash" . "src bash"))
+(add-to-list 'org-structure-template-alist '("js" . "src js"))
+(add-to-list 'org-structure-template-alist '("json" . "src json"))
 
 ;; Enable Babel languages.
 (org-babel-do-load-languages
  'org-babel-load-languages '((ocaml . t)
                              (emacs-lisp . t)
-                             (latex . t)))
+                             (latex . t)
+                             (js . t)))
 
 (use-package sml-mode)
 
@@ -421,15 +467,29 @@
 (use-package geiser)
 (use-package geiser-guile)
 
-(load-file (let ((coding-system-for-read 'utf-8))
-             (shell-command-to-string "agda-mode locate")))
-
 (use-package rust-mode
   :config
   ; Force indentation to use spaces.
   (indent-tabs-mode nil)
   (rust-enable-format-on-save)
   (prettify-symbols-mode))
+
+(use-package json-mode)
+
+(use-package go-mode
+  :hook (before-save . gofmt-before-save))
+
+(use-package copilot-mode
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :hook
+  ;; Enable in all modes that inherit from prog-mode
+  (prog-mode . copilot-mode)
+  ;; Accept completion from copilot and fallback to company
+  :bind (:map copilot-completion-map
+	    ("<tab>" . 'copilot-accept-completion)
+	    ("TAB" . 'copilot-accept-completion)
+	    ("C-TAB" . 'copilot-accept-completion-by-word)
+	    ("C-<tab>" . 'copilot-accept-completion-by-word)))
 
 (use-package vterm)
 
