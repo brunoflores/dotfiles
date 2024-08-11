@@ -681,23 +681,6 @@ the actual file unchanged:
     :hook (before-save . gofmt-before-save))
 #+end_src
 
-** Github Copilot
-The =copilot.el= currently can only be installed from =straight.el=.
-
-#+begin_src emacs-lisp
-  (use-package copilot-mode
-    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-    :hook
-    ;; Enable in all modes that inherit from prog-mode
-    (prog-mode . copilot-mode)
-    ;; Accept completion from copilot and fallback to company
-    :bind (:map copilot-completion-map
-	      ("<tab>" . 'copilot-accept-completion)
-	      ("TAB" . 'copilot-accept-completion)
-	      ("C-TAB" . 'copilot-accept-completion-by-word)
-	      ("C-<tab>" . 'copilot-accept-completion-by-word)))
-#+end_src
-
 * Terminals
 
 We use vterm with defaults for the momment.

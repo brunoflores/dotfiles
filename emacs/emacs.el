@@ -479,18 +479,6 @@
 (use-package go-mode
   :hook (before-save . gofmt-before-save))
 
-(use-package copilot-mode
-  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :hook
-  ;; Enable in all modes that inherit from prog-mode
-  (prog-mode . copilot-mode)
-  ;; Accept completion from copilot and fallback to company
-  :bind (:map copilot-completion-map
-	    ("<tab>" . 'copilot-accept-completion)
-	    ("TAB" . 'copilot-accept-completion)
-	    ("C-TAB" . 'copilot-accept-completion-by-word)
-	    ("C-<tab>" . 'copilot-accept-completion-by-word)))
-
 (use-package vterm)
 
 (use-package dired
