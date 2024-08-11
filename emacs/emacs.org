@@ -659,16 +659,6 @@ the actual file unchanged:
   (use-package geiser-guile)
 #+end_src
 
-** Agda
-
-From the installation manual:
-https://agda.readthedocs.io/en/v2.6.4.1/getting-started/installation.html
-
-#+begin_src emacs-lisp
-  (load-file (let ((coding-system-for-read 'utf-8))
-               (shell-command-to-string "agda-mode locate")))
-#+end_src
-
 ** Rust
 
 #+begin_src emacs-lisp
