@@ -23,6 +23,27 @@ Install and enable =use-package= and configure to always install if not present.
   (setq use-package-always-ensure t)
 #+end_src
 
+Install the =straight.el= package manager too. Some packages can only be found
+there.
+
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name
+	  "straight/repos/straight.el/bootstrap.el"
+	  (or (bound-and-true-p straight-base-dir)
+	      user-emacs-directory)))
+	(bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+end_src
+
 Together with use-package, =:diminish= can hide minor modes from the mode line.
 
 #+begin_src emacs-lisp
