@@ -121,6 +121,13 @@ Configure some ~tree-sitter~ grammars locations:
      (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 #+end_src
 
+To configure Emacs so that pressing Tab will produce spaces instead of actual
+tab characters:
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
 * Theme
 
 #+begin_src emacs-lisp
