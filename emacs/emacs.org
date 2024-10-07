@@ -429,7 +429,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :hook (lisp-mode . paredit-mode))
 #+end_src
 
-** Ocaml
+** OCaml
 
 #+begin_src emacs-lisp
   (use-package ocamlformat
@@ -441,6 +441,10 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :config
     ;; Use the opam installed utop
     (setq utop-command "opam exec -- utop -emacs"))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package merlin)
 #+end_src
 
 ** fstar
