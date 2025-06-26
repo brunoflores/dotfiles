@@ -74,7 +74,13 @@
      (toml "https://github.com/tree-sitter/tree-sitter-toml")
      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+     (c "https://github.com/tree-sitter/tree-sitter-c")))
+
+(setq-default indent-tabs-mode nil)
+
+(setq-default next-error-message-highlight t)
+(setq-default compilation-window-height 20)
 
 (load-theme 'wombat t)
 (set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
@@ -94,7 +100,7 @@
 ;; Refresh buffers automatically.
 (global-auto-revert-mode t)
 
-  ;; Save minibuffer history.
+;; Save minibuffer history.
 (savehist-mode t)
 
 ;; Save place in each file.
@@ -110,11 +116,11 @@
 
 (use-package rainbow-mode)
 
-(setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
-(require 'ott-mode)
+;; (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
+;; (require 'ott-mode)
 
-(load "~/devel/HOL/tools/hol-mode")
-(load "~/devel/HOL/tools/hol-unicode")
+;; (load "~/devel/HOL/tools/hol-mode")
+;; (load "~/devel/HOL/tools/hol-unicode")
 
 (use-package yasnippet
   :config
@@ -211,15 +217,14 @@
 
 (use-package projectile
   :diminish projectile-mode
-  :config (projectile-mode)
-  ;; Set if using Ivy.
-  ; :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
+  :bind (:map projectile-mode-map
+	      ("C-c p" . projectile-command-map))
   :init
+  (projectile-mode +1)
   (when (file-directory-p "~/devel")
     (setq projectile-project-search-path '("~/devel")))
-  ; Open project in dired
+  :config
+  ;; Open project in dired
   (setq projectile-switch-project-action 'projectile-dired))
 
 (use-package counsel-projectile
@@ -237,14 +242,37 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (;; Enable languages here.
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t)
+  :hook (;; Enable languages here:
+	 (c-mode . lsp-deferred)
 	 (tuareg-mode . lsp-deferred)
 	 (shell-script-mode . lsp-deferred)))
+
+(use-package lsp-treemacs
+  :after (treemacs lsp))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+;; This uses Merlin internally
+(use-package flycheck-ocaml
+  :ensure t
+  :config
+  (flycheck-ocaml-setup))
 
 ;; Show messages on the right-side margin.
 (use-package lsp-ui
   :commands lsp-ui-mode
-  :hook (tuareg-mode . lsp-ui-sideline-mode)
+  :hook ((tuareg-mode . lsp-ui-sideline-mode)
+	 (lsp-mode . lsp-ui-mode))
   :init
   (setq lsp-ui-sideline-show-diagnostics t)
   (setq lsp-ui-sideline-show-hover nil)
@@ -282,6 +310,8 @@
 (use-package paredit
   :hook (lisp-mode . paredit-mode))
 
+(use-package tuareg)
+
 (use-package ocamlformat
   :hook (before-save . ocamlformat-before-save))
 
@@ -289,6 +319,11 @@
   :config
   ;; Use the opam installed utop
   (setq utop-command "opam exec -- utop -emacs"))
+
+;; OCaml + Make
+(projectile-register-project-type 'ocaml-make '("dune-project" "Makefile")
+                                  :project-file "dune-project"
+                                  :compile "make -k")
 
 (use-package fstar-mode)
 
@@ -396,8 +431,8 @@
   ;; Configure what sections are displayed in the Org-roam buffer:
   (setq org-roam-mode-sections
     (list #'org-roam-backlinks-section
-          #'org-roam-reflinks-section
-          #'org-roam-unlinked-references-section))
+#'org-roam-reflinks-section
+#'org-roam-unlinked-references-section))
   ;; If you're using a vertical completion framework, you might want
   ;; a more informative completion interface.
   (setq org-roam-node-display-template
@@ -451,18 +486,61 @@
 
 (use-package sml-mode)
 
+;; (use-package pdf-tools
+;;   ;; :pin manual ;; manually update
+;;   :config
+;;   ;; initialise
+;;   (pdf-tools-install)
+;;   ;; open pdfs scaled to fit page
+;;   (setq-default pdf-view-display-size 'fit-page)
+;;   ;; automatically annotate highlights
+;;   ;; (setq pdf-annot-activate-created-annotations t)
+;;   ;; use normal isearch
+;;   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+;;   ;; turn off cua so copy works
+;;   (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+;;   ;; more fine-grained zooming
+;;   (setq pdf-view-resize-factor 1.1)
+;;   ;; keyboard shortcuts
+;;   (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+;;   (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+;;   (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
+
 (use-package pdf-tools
+  :mode
+  (("\\.pdf$" . pdf-view-mode))
+
+  :custom
+  ;; pdf-annot-activate-created-annotations t ;; automatically annotate highlights
+  pdf-view-resize-factor 1.1 ;; 10%
+
+  :bind
+  (:map pdf-view-mode-map
+	;; normal isearch
+	("C-s" . isearch-forward)
+	;; custom keys
+	("h" . pdf-annot-add-highlight-markup-annotation)
+	("t" . pdf-annot-add-text-annotation)
+	("D" . pdf-annot-delete))
+
+  :hook
+  ((pdf-view-mode) . (lambda () (cua-mode 0)))
+
   :config
   (pdf-tools-install)
-  (setq pdf-annot-default-annotation-properties
-        '((highlight
-           (color . "gold"))
-          (underline
-           (color . "blue"))
-          (squiggly
-           (color . "orange"))
-          (strike-out
-           (color . "red")))))
+
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq-default pdf-annot-color-history '("plum" "dark khaki" "coral" "cyan" "gold"
+					  (highlight (color . "gold")) (underline (color . "blue"))
+					  (squiggly (color . "orange")) (strike-out (color . "red"))))
+
+  (customize-set-variable
+   'display-buffer-alist
+   '(("^\\*outline"
+      display-buffer-in-side-window
+      (side . right)
+      (window-width . 0.35)
+      (inhibit-switch-frame . t)))))
 
 (use-package geiser)
 (use-package geiser-guile)
@@ -479,10 +557,43 @@
 (use-package go-mode
   :hook (before-save . gofmt-before-save))
 
-(use-package vterm)
+;; (use-package vterm)
 
 (use-package dired
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump))
   :custom ((dired-listing-switches "-ltgo")))
+
+(use-package idris-mode
+  :ensure t
+  :custom
+  (idris-interpreter-path "idris2"))
+
+;; (use-package idris-mode
+;;   :mode ("\\.l?idr\\'" . idris-mode)
+;;   :config
+;;   (after lsp-mode
+;;     (add-to-list 'lsp-language-id-configuration '(idris-mode . "idris2"))
+
+;;     (lsp-register-client
+;;      (make-lsp-client
+;;       :new-connection (lsp-stdio-connection "idris2-lsp")
+;;       :major-modes '(idris-mode)
+;;       :server-id 'idris2-lsp))
+;;     )
+;;     ;; (setq lsp-semantic-tokens-enable t) ;; Optionally enable semantic tokens
+
+;;   (add-hook 'idris-mode-hook #'lsp!)
+;;   )
+
+(setq load-path (cons (expand-file-name "~/devel/llvm-project/llvm/utils/emacs/") load-path))
+(require 'llvm-mode)
+
+(use-package clang-format
+  :init
+  (setq-default clang-format-style "file")
+  (setq-default clang-format-fallback-style "llvm")
+  :config
+  (add-hook 'c-mode-hook (lambda ()
+        		   (add-hook 'before-save-hook 'clang-format-buffer nil 'local))))
