@@ -597,3 +597,21 @@
   :config
   (add-hook 'c-mode-hook (lambda ()
         		   (add-hook 'before-save-hook 'clang-format-buffer nil 'local))))
+
+(defun db/treemacs-toggle ()
+  "Toggle the lsp-treemacs-symbols buffer."
+  (interactive)
+  ((if (get-buffer "*LSP Symbols List*")
+      (kill-buffer "*LSP Symbols List*")
+    (progn (lsp-treemacs-symbols)
+           (other-window -1)))
+  (treemacs)))
+
+;; (defadvice compile (before ad-compile-smart activate)
+;;   "Advises `compile' so it sets the argument COMINT to t."
+;;   (ad-set-arg 1 t))
+
+;; Frama C
+(setq load-path (cons (expand-file-name "~/.opam/5.3.0/share/frama-c/share/emacs/") load-path))
+(autoload 'acsl-mode "acsl" "Major mode for editing ACSL code" t)
+(add-to-list 'lsp-language-id-configuration '(acsl-mode . "c"))
