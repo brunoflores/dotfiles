@@ -12,15 +12,15 @@
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
-	"straight/repos/straight.el/bootstrap.el"
-	(or (bound-and-true-p straight-base-dir)
-	    user-emacs-directory)))
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
       (bootstrap-version 7))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
-	(url-retrieve-synchronously
-	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-	 'silent 'inhibit-cookies)
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
@@ -40,7 +40,7 @@
 ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
 (setq-default fill-column 80)
 (setq-default inhibit-startup-message t)
-(setq-default visible-bell nil) ; Disable visible bell
+(setq-default visible-bell t)
 
 ;; Put all backup files here (those that end on a ~).
 (setq-default backup-directory-alist '(("" . "~/.emacs.d/backup")))
@@ -51,7 +51,7 @@
 ;; Smoother scrolling from
 ;; https://www.emacswiki.org/emacs/SmoothScrolling
 (setq-default scroll-step 1
-	      scroll-conservatively 10000)
+      	scroll-conservatively 10000)
 
 ;(setq find-file-visit-truename t)
 
@@ -85,6 +85,10 @@
 (load-theme 'wombat t)
 (set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
 
+(use-package keycast
+  :init
+  (keycast-mode-line-mode t))
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
@@ -99,6 +103,9 @@
 
 ;; Refresh buffers automatically.
 (global-auto-revert-mode t)
+
+;; Revert Dired and other buffers
+(setq global-auto-revert-non-file-buffers t)
 
 ;; Save minibuffer history.
 (savehist-mode t)
@@ -218,7 +225,7 @@
 (use-package projectile
   :diminish projectile-mode
   :bind (:map projectile-mode-map
-	      ("C-c p" . projectile-command-map))
+      	("C-c p" . projectile-command-map))
   :init
   (projectile-mode +1)
   (when (file-directory-p "~/devel")
@@ -242,14 +249,17 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
+
   :init
   (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+
   :config
   (lsp-enable-which-key-integration t)
+
   :hook (;; Enable languages here:
-	 (c-mode . lsp-deferred)
-	 (tuareg-mode . lsp-deferred)
-	 (shell-script-mode . lsp-deferred)))
+         (c-mode . lsp-deferred)
+         (tuareg-mode . lsp-deferred)
+         (shell-script-mode . lsp-deferred)))
 
 (use-package lsp-treemacs
   :after (treemacs lsp))
@@ -272,7 +282,7 @@
 (use-package lsp-ui
   :commands lsp-ui-mode
   :hook ((tuareg-mode . lsp-ui-sideline-mode)
-	 (lsp-mode . lsp-ui-mode))
+         (lsp-mode . lsp-ui-mode))
   :init
   (setq lsp-ui-sideline-show-diagnostics t)
   (setq lsp-ui-sideline-show-hover nil)
@@ -431,8 +441,8 @@
   ;; Configure what sections are displayed in the Org-roam buffer:
   (setq org-roam-mode-sections
     (list #'org-roam-backlinks-section
-#'org-roam-reflinks-section
-#'org-roam-unlinked-references-section))
+          #'org-roam-reflinks-section
+          #'org-roam-unlinked-references-section))
   ;; If you're using a vertical completion framework, you might want
   ;; a more informative completion interface.
   (setq org-roam-node-display-template
@@ -486,6 +496,41 @@
 
 (use-package sml-mode)
 
+(use-package pdf-tools
+  :mode
+  (("\\.pdf$" . pdf-view-mode))
+
+  :custom
+  ;; pdf-annot-activate-created-annotations t ;; automatically annotate highlights
+  pdf-view-resize-factor 1.1 ;; 10%
+
+  :bind
+  (:map pdf-view-mode-map
+        ;; normal isearch
+        ("C-s" . isearch-forward)
+        ;; custom keys
+        ("h" . pdf-annot-add-highlight-markup-annotation)
+        ("t" . pdf-annot-add-text-annotation)
+        ("D" . pdf-annot-delete))
+
+  :hook
+  ((pdf-view-mode) . (lambda () (cua-mode 0)))
+
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq-default pdf-annot-color-history
+                '("plum" "dark khaki" "coral" "cyan" "gold"
+       		  (highlight (color . "gold")) (underline (color . "blue"))
+       		  (squiggly (color . "orange")) (strike-out (color . "red"))))
+  (customize-set-variable
+   'display-buffer-alist
+   '(("^\\*outline"
+      display-buffer-in-side-window
+      (side . right)
+      (window-width . 0.35)
+      (inhibit-switch-frame . t)))))
+
 ;; (use-package pdf-tools
 ;;   ;; :pin manual ;; manually update
 ;;   :config
@@ -506,41 +551,16 @@
 ;;   (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
 ;;   (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
 
-(use-package pdf-tools
-  :mode
-  (("\\.pdf$" . pdf-view-mode))
-
-  :custom
-  ;; pdf-annot-activate-created-annotations t ;; automatically annotate highlights
-  pdf-view-resize-factor 1.1 ;; 10%
-
-  :bind
-  (:map pdf-view-mode-map
-	;; normal isearch
-	("C-s" . isearch-forward)
-	;; custom keys
-	("h" . pdf-annot-add-highlight-markup-annotation)
-	("t" . pdf-annot-add-text-annotation)
-	("D" . pdf-annot-delete))
-
-  :hook
-  ((pdf-view-mode) . (lambda () (cua-mode 0)))
-
-  :config
-  (pdf-tools-install)
-
-  (setq-default pdf-view-display-size 'fit-page)
-  (setq-default pdf-annot-color-history '("plum" "dark khaki" "coral" "cyan" "gold"
-					  (highlight (color . "gold")) (underline (color . "blue"))
-					  (squiggly (color . "orange")) (strike-out (color . "red"))))
-
-  (customize-set-variable
-   'display-buffer-alist
-   '(("^\\*outline"
-      display-buffer-in-side-window
-      (side . right)
-      (window-width . 0.35)
-      (inhibit-switch-frame . t)))))
+;; (pdf-tools-install)
+;; (setq pdf-annot-default-annotation-properties
+;;       '((highlight
+;;          (color . "gold"))
+;;         (underline
+;;          (color . "blue"))
+;;         (squiggly
+;;          (color . "orange"))
+;;         (strike-out
+;;          (color . "red")))))
 
 (use-package geiser)
 (use-package geiser-guile)
@@ -557,14 +577,6 @@
 (use-package go-mode
   :hook (before-save . gofmt-before-save))
 
-;; (use-package vterm)
-
-(use-package dired
-  :ensure nil
-  :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump))
-  :custom ((dired-listing-switches "-ltgo")))
-
 (use-package idris-mode
   :ensure t
   :custom
@@ -575,7 +587,6 @@
 ;;   :config
 ;;   (after lsp-mode
 ;;     (add-to-list 'lsp-language-id-configuration '(idris-mode . "idris2"))
-
 ;;     (lsp-register-client
 ;;      (make-lsp-client
 ;;       :new-connection (lsp-stdio-connection "idris2-lsp")
@@ -583,9 +594,7 @@
 ;;       :server-id 'idris2-lsp))
 ;;     )
 ;;     ;; (setq lsp-semantic-tokens-enable t) ;; Optionally enable semantic tokens
-
 ;;   (add-hook 'idris-mode-hook #'lsp!)
-;;   )
 
 (setq load-path (cons (expand-file-name "~/devel/llvm-project/llvm/utils/emacs/") load-path))
 (require 'llvm-mode)
@@ -598,20 +607,15 @@
   (add-hook 'c-mode-hook (lambda ()
         		   (add-hook 'before-save-hook 'clang-format-buffer nil 'local))))
 
-(defun db/treemacs-toggle ()
-  "Toggle the lsp-treemacs-symbols buffer."
-  (interactive)
-  ((if (get-buffer "*LSP Symbols List*")
-      (kill-buffer "*LSP Symbols List*")
-    (progn (lsp-treemacs-symbols)
-           (other-window -1)))
-  (treemacs)))
-
-;; (defadvice compile (before ad-compile-smart activate)
-;;   "Advises `compile' so it sets the argument COMINT to t."
-;;   (ad-set-arg 1 t))
-
 ;; Frama C
 (setq load-path (cons (expand-file-name "~/.opam/5.3.0/share/frama-c/share/emacs/") load-path))
 (autoload 'acsl-mode "acsl" "Major mode for editing ACSL code" t)
 (add-to-list 'lsp-language-id-configuration '(acsl-mode . "c"))
+
+;; (use-package vterm)
+
+(use-package dired
+  :ensure nil
+  :commands (dired dired-jump)
+  :bind (("C-x C-j" . dired-jump))
+  :custom ((dired-listing-switches "-ltgo")))

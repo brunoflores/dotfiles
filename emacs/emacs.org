@@ -71,7 +71,7 @@ configuration is "buffer local".
   ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
   (setq-default fill-column 80)
   (setq-default inhibit-startup-message t)
-  (setq-default visible-bell nil) ; Disable visible bell
+  (setq-default visible-bell t)
 
   ;; Put all backup files here (those that end on a ~).
   (setq-default backup-directory-alist '(("" . "~/.emacs.d/backup")))
@@ -103,22 +103,23 @@ in WindowConfiguration. Here we navigate our window history:
 Configure some ~tree-sitter~ grammars locations:
 
 #+begin_src emacs-lisp
-(setq treesit-language-source-alist
-   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-     (cmake "https://github.com/uyha/tree-sitter-cmake")
-     (css "https://github.com/tree-sitter/tree-sitter-css")
-     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-     (go "https://github.com/tree-sitter/tree-sitter-go")
-     (html "https://github.com/tree-sitter/tree-sitter-html")
-     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-     (json "https://github.com/tree-sitter/tree-sitter-json")
-     (make "https://github.com/alemuller/tree-sitter-make")
-     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-     (python "https://github.com/tree-sitter/tree-sitter-python")
-     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+  (setq treesit-language-source-alist
+     '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+       (cmake "https://github.com/uyha/tree-sitter-cmake")
+       (css "https://github.com/tree-sitter/tree-sitter-css")
+       (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+       (go "https://github.com/tree-sitter/tree-sitter-go")
+       (html "https://github.com/tree-sitter/tree-sitter-html")
+       (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+       (json "https://github.com/tree-sitter/tree-sitter-json")
+       (make "https://github.com/alemuller/tree-sitter-make")
+       (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+       (python "https://github.com/tree-sitter/tree-sitter-python")
+       (toml "https://github.com/tree-sitter/tree-sitter-toml")
+       (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+       (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+       (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+       (c "https://github.com/tree-sitter/tree-sitter-c")))
 #+end_src
 
 To configure Emacs so that pressing Tab will produce spaces instead of actual
@@ -126,6 +127,11 @@ tab characters:
 
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode nil)
+#+end_src
+
+#+begin_src emacs-lisp
+  (setq-default next-error-message-highlight t)
+  (setq-default compilation-window-height 20)
 #+end_src
 
 * Theme
@@ -136,6 +142,12 @@ tab characters:
 #+end_src
 
 * Global modes
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package keycast
+    :init
+    (keycast-mode-line-mode t))
+#+end_src
 
 Disable some default modes.
 
@@ -159,7 +171,10 @@ Enable some default modes.
   ;; Refresh buffers automatically.
   (global-auto-revert-mode t)
 
-    ;; Save minibuffer history.
+  ;; Revert Dired and other buffers
+  (setq global-auto-revert-non-file-buffers t)
+
+  ;; Save minibuffer history.
   (savehist-mode t)
 
   ;; Save place in each file.
@@ -181,13 +196,13 @@ Enable some default modes.
 #+end_src
 
 #+begin_src emacs-lisp
-  (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
-  (require 'ott-mode)
+  ;; (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
+  ;; (require 'ott-mode)
 #+end_src
 
 #+begin_src emacs-lisp
-  (load "~/devel/HOL/tools/hol-mode")
-  (load "~/devel/HOL/tools/hol-unicode")
+  ;; (load "~/devel/HOL/tools/hol-mode")
+  ;; (load "~/devel/HOL/tools/hol-unicode")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -334,15 +349,14 @@ Orderless allows me to search word parts in any order.
 #+begin_src emacs-lisp
   (use-package projectile
     :diminish projectile-mode
-    :config (projectile-mode)
-    ;; Set if using Ivy.
-    ; :custom ((projectile-completion-system 'ivy))
-    :bind-keymap
-    ("C-c p" . projectile-command-map)
+    :bind (:map projectile-mode-map
+		("C-c p" . projectile-command-map))
     :init
+    (projectile-mode +1)
     (when (file-directory-p "~/devel")
       (setq projectile-project-search-path '("~/devel")))
-    ; Open project in dired
+    :config
+    ;; Open project in dired
     (setq projectile-switch-project-action 'projectile-dired))
 #+end_src
 
@@ -374,14 +388,40 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 #+begin_src emacs-lisp
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
-    :hook (;; Enable languages here.
-	   (tuareg-mode . lsp-deferred)
-	   (shell-script-mode . lsp-deferred)))
+
+    :init
+    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+
+    :config
+    (lsp-enable-which-key-integration t)
+
+    :hook (;; Enable languages here:
+           (c-mode . lsp-deferred)
+           (tuareg-mode . lsp-deferred)
+           (shell-script-mode . lsp-deferred)))
+
+  (use-package lsp-treemacs
+    :after (treemacs lsp))
+
+  (use-package treemacs-projectile
+    :after (treemacs projectile)
+    :ensure t)
+
+  (use-package treemacs-magit
+    :after (treemacs magit)
+    :ensure t)
+
+  ;; This uses Merlin internally
+  (use-package flycheck-ocaml
+    :ensure t
+    :config
+    (flycheck-ocaml-setup))
 
   ;; Show messages on the right-side margin.
   (use-package lsp-ui
     :commands lsp-ui-mode
-    :hook (tuareg-mode . lsp-ui-sideline-mode)
+    :hook ((tuareg-mode . lsp-ui-sideline-mode)
+           (lsp-mode . lsp-ui-mode))
     :init
     (setq lsp-ui-sideline-show-diagnostics t)
     (setq lsp-ui-sideline-show-hover nil)
@@ -432,6 +472,10 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 ** OCaml
 
 #+begin_src emacs-lisp
+  (use-package tuareg)
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package ocamlformat
     :hook (before-save . ocamlformat-before-save))
 #+end_src
@@ -444,7 +488,10 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package merlin)
+  ;; OCaml + Make
+  (projectile-register-project-type 'ocaml-make '("dune-project" "Makefile")
+                                    :project-file "dune-project"
+                                    :compile "make -k")
 #+end_src
 
 ** fstar
@@ -650,17 +697,74 @@ the actual file unchanged:
 
 #+begin_src emacs-lisp
   (use-package pdf-tools
+    :mode
+    (("\\.pdf$" . pdf-view-mode))
+
+    :custom
+    ;; pdf-annot-activate-created-annotations t ;; automatically annotate highlights
+    pdf-view-resize-factor 1.1 ;; 10%
+
+    :bind
+    (:map pdf-view-mode-map
+          ;; normal isearch
+          ("C-s" . isearch-forward)
+          ;; custom keys
+          ("h" . pdf-annot-add-highlight-markup-annotation)
+          ("t" . pdf-annot-add-text-annotation)
+          ("D" . pdf-annot-delete))
+
+    :hook
+    ((pdf-view-mode) . (lambda () (cua-mode 0)))
+
     :config
     (pdf-tools-install)
-    (setq pdf-annot-default-annotation-properties
-          '((highlight
-             (color . "gold"))
-            (underline
-             (color . "blue"))
-            (squiggly
-             (color . "orange"))
-            (strike-out
-             (color . "red")))))
+    (setq-default pdf-view-display-size 'fit-page)
+    (setq-default pdf-annot-color-history
+                  '("plum" "dark khaki" "coral" "cyan" "gold"
+         		  (highlight (color . "gold")) (underline (color . "blue"))
+         		  (squiggly (color . "orange")) (strike-out (color . "red"))))
+    (customize-set-variable
+     'display-buffer-alist
+     '(("^\\*outline"
+        display-buffer-in-side-window
+        (side . right)
+        (window-width . 0.35)
+        (inhibit-switch-frame . t)))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; (use-package pdf-tools
+;;   ;; :pin manual ;; manually update
+;;   :config
+;;   ;; initialise
+;;   (pdf-tools-install)
+;;   ;; open pdfs scaled to fit page
+;;   (setq-default pdf-view-display-size 'fit-page)
+;;   ;; automatically annotate highlights
+;;   ;; (setq pdf-annot-activate-created-annotations t)
+;;   ;; use normal isearch
+;;   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+;;   ;; turn off cua so copy works
+;;   (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+;;   ;; more fine-grained zooming
+;;   (setq pdf-view-resize-factor 1.1)
+;;   ;; keyboard shortcuts
+;;   (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+;;   (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+;;   (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  ;; (pdf-tools-install)
+  ;; (setq pdf-annot-default-annotation-properties
+  ;;       '((highlight
+  ;;          (color . "gold"))
+  ;;         (underline
+  ;;          (color . "blue"))
+  ;;         (squiggly
+  ;;          (color . "orange"))
+  ;;         (strike-out
+  ;;          (color . "red")))))
 #+end_src
 
 ** Scheme
@@ -682,14 +786,66 @@ the actual file unchanged:
 #+end_src
 
 ** JSON
+
 #+begin_src emacs-lisp
   (use-package json-mode)
 #+end_src
 
 ** Go
+
 #+begin_src emacs-lisp
   (use-package go-mode
     :hook (before-save . gofmt-before-save))
+#+end_src
+
+** Idris
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package idris-mode
+    :ensure t
+    :custom
+    (idris-interpreter-path "idris2"))
+
+  ;; (use-package idris-mode
+  ;;   :mode ("\\.l?idr\\'" . idris-mode)
+  ;;   :config
+  ;;   (after lsp-mode
+  ;;     (add-to-list 'lsp-language-id-configuration '(idris-mode . "idris2"))
+  ;;     (lsp-register-client
+  ;;      (make-lsp-client
+  ;;       :new-connection (lsp-stdio-connection "idris2-lsp")
+  ;;       :major-modes '(idris-mode)
+  ;;       :server-id 'idris2-lsp))
+  ;;     )
+  ;;     ;; (setq lsp-semantic-tokens-enable t) ;; Optionally enable semantic tokens
+  ;;   (add-hook 'idris-mode-hook #'lsp!)
+
+#+end_src
+
+** LLVM
+
+#+begin_src emacs-lisp :tangle yes
+  (setq load-path (cons (expand-file-name "~/devel/llvm-project/llvm/utils/emacs/") load-path))
+  (require 'llvm-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package clang-format
+    :init
+    (setq-default clang-format-style "file")
+    (setq-default clang-format-fallback-style "llvm")
+    :config
+    (add-hook 'c-mode-hook (lambda ()
+          		   (add-hook 'before-save-hook 'clang-format-buffer nil 'local))))
+#+end_src
+
+** C
+
+#+begin_src emacs-lisp :tangle yes
+  ;; Frama C
+  (setq load-path (cons (expand-file-name "~/.opam/5.3.0/share/frama-c/share/emacs/") load-path))
+  (autoload 'acsl-mode "acsl" "Major mode for editing ACSL code" t)
+  (add-to-list 'lsp-language-id-configuration '(acsl-mode . "c"))
 #+end_src
 
 * Terminals
@@ -697,7 +853,7 @@ the actual file unchanged:
 We use vterm with defaults for the momment.
 
 #+begin_src emacs-lisp
-(use-package vterm)
+;; (use-package vterm)
 #+end_src
 
 * Dired
