@@ -510,11 +510,12 @@ Consult provides search and navigation commands.
     (completion-list-mode . consult-preview-at-point-mode)
     :bind (("C-y" . consult-yank-from-kill-ring)
            :map my-search-map
-           ("l" . consult-line)         ; Search (l)ine in current buffer
-           ("L" . consult-line-multi)   ; Seach across project buffers
-           ("i" . consult-imenu)        ; Seach imenu (i)tems
-           ("f" . consult-find)         ; Find file in project
-           ("b" . consult-buffer)       ; Find a buffer
+           ("l" . consult-line)             ; Search (l)ine in current buffer
+           ("L" . consult-line-multi)       ; Seach across project buffers
+           ("i" . consult-imenu)            ; Seach imenu (i)tems
+           ("f" . consult-find)             ; Find file in project
+           ("b" . consult-buffer)           ; Find a buffer
+           ("m" . consult-kmacro)           ; Find a keyboard macro
            ("B" . consult-project-buffer)
            ("o" . consult-outline)
            ("e" . consult-compile-error)
