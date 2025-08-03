@@ -692,25 +692,17 @@ Configurations for the compilation buffer:
     (lisp-interaction-mode . paredit-mode))
 
   (use-package rainbow-delimiters
-    :custom-face
-
-    ;; Error face
-    (rainbow-delimiters-base-error-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "magenta"))))
-
-    ;; Depths
-    (rainbow-delimiters-depth-1-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "gold"))))
-    (rainbow-delimiters-depth-2-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "spring green"))))
-    (rainbow-delimiters-depth-3-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "dark salmon"))))
-    (rainbow-delimiters-depth-4-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "orange red"))))
-    (rainbow-delimiters-depth-5-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "hot pink"))))
-    (rainbow-delimiters-depth-6-face
-     ((t (:inherit rainbow-delimiters-base-face :foreground "peach puff"))))
+    :config
+    ;; Set faces for error and levels
+    (dolist (face '((rainbow-delimiters-base-error-face . "magenta")
+                    (rainbow-delimiters-depth-1-face . "gold")
+                    (rainbow-delimiters-depth-2-face . "spring green")
+                    (rainbow-delimiters-depth-3-face . "dark salmon")
+                    (rainbow-delimiters-depth-4-face . "orange red")
+                    (rainbow-delimiters-depth-5-face . "hot pink")
+                    (rainbow-delimiters-depth-6-face . "peach puff")))
+      (set-face-attribute (car face) nil
+                          :foreground (cdr face)))
 
     :bind (:map my-toggle-map
                 ("r" . rainbow-delimiters-mode))
