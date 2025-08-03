@@ -1,11 +1,113 @@
 #+title Emacs Configuration
-#+PROPERTY: header-args:emacs-lisp :tangle ./emacs.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
 
 * Globals
 
-Configure package repositories.
+#+begin_src emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+#+end_src
+
+Set some global default values. We use only =setq-default= in case a
+configuration is "buffer local".
 
 #+begin_src emacs-lisp
+  (setq-default
+   inhibit-startup-message t
+
+   ;; Keep point at the same screen position when scrolling up and down pages.
+   scroll-preserve-screen-position t
+
+   ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
+   fill-column 80
+
+   visible-bell t
+
+   ;; Put all backup files here (those that end on a ~).
+   backup-directory-alist '(("" . "~/.emacs.d/backup"))
+
+   ;; Smoother scrolling from
+   ;; https://www.emacswiki.org/emacs/SmoothScrolling
+   scroll-step 1
+   scroll-conservatively 10000
+   ;; In number of lines
+   scroll-margin 20
+
+   ;; Instruct auto-save-mode to save to the current file, not a backup file
+   auto-save-default nil
+
+   ;; No backup files, please
+   make-backup-files nil
+
+   ;; Make it easy to cycle through previous items in the mark ring
+   set-mark-command-repeat-pop t
+
+   ;; Don't warn on large files
+   large-file-warning-threshold nil
+
+   ;; Don't warn on advice
+   ad-redefinition-action 'accept
+
+   ;; Revert Dired and other buffers
+   global-auto-revert-non-file-buffers t
+
+   ;; Silence compiler warnings as they can be pretty disruptive
+   native-comp-async-report-warnings-errors nil
+
+   ;; Indentation cannot insert tabs
+   indent-tabs-mode nil
+   tab-width 2
+
+   ;; One can instruct Emacs to always resolve symlinks, at a performance cost
+   find-file-visit-truename t
+
+   ;; Tell global-auto-revert-mode to act also on Dired buffers
+   global-auto-revert-non-file-buffers t)
+#+end_src
+
+Personal key maps:
+
+#+begin_src emacs-lisp
+  (defvar-keymap my-other-map)
+  (keymap-set global-map "C-o" my-other-map)
+
+  (defvar-keymap my-search-map)
+  (keymap-set global-map "C-s" my-search-map)
+
+  (defvar-keymap my-toggle-map
+    "l" 'display-line-numbers-mode)
+  (keymap-set global-map "C-t" my-toggle-map)
+#+end_src
+
+By default, we must hit escape three times to quit anything. Make it only once:
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+
+Some global hooks:
+
+#+begin_src emacs-lisp
+  ;; In all modes, delete trailing whitespaces before saving.
+  (add-hook 'before-save-hook #'delete-trailing-whitespace)
+#+end_src
+
+From =recentf-mode=:
+  By default, only operations like opening a file, writing a buffer
+  to a file, and killing a buffer is counted as "operating" on
+  the file.  If instead you want to prioritize files that appear in
+  buffers you switch to a lot, you can say something like the following:
+
+#+begin_src emacs-lisp
+  (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
+#+end_src
+
+* Package management
+
+Configure package repositories:
+/(Not needed since we are using =straight.el= for package management)/
+
+#+begin_src emacs-lisp :tangle no
   (require 'package)
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                            ("org" . "https://orgmode.org/elpa/")
@@ -13,166 +115,75 @@ Configure package repositories.
   (package-initialize)
 #+end_src
 
-Configuration and loading of packages:
-Install and enable =use-package= and configure to always install if not present.
-
-#+begin_src emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-#+end_src
-
-Install the =straight.el= package manager too. Some packages can only be found
-there.
+Install the =straight.el= package manager:
 
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
-	 (expand-file-name
-	  "straight/repos/straight.el/bootstrap.el"
-	  (or (bound-and-true-p straight-base-dir)
-	      user-emacs-directory)))
-	(bootstrap-version 7))
+  	 (expand-file-name
+  	  "straight/repos/straight.el/bootstrap.el"
+  	  (or (bound-and-true-p straight-base-dir)
+  	      user-emacs-directory)))
+  	(bootstrap-version 7))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
-	  (url-retrieve-synchronously
-	   "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-	   'silent 'inhibit-cookies)
-	(goto-char (point-max))
-	(eval-print-last-sexp)))
+  	  (url-retrieve-synchronously
+  	   "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+  	   'silent 'inhibit-cookies)
+  	(goto-char (point-max))
+  	(eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+end_src
+
+Install =use-package= via =straight.el=:
+
+#+begin_src emacs-lisp
+  ;; Integrate straight.el with use-package
+  (straight-use-package '(use-package :host github :repo "emacs-straight/use-package"))
+#+end_src
+
+Tell =straight.el= to ensure all my packages are installed by default:
+
+#+begin_src emacs-lisp
+  ;; Add :straight t to all my packages so they are installed by default
+  (setq straight-use-package-by-default t)
 #+end_src
 
 Together with use-package, =:diminish= can hide minor modes from the mode line.
 
 #+begin_src emacs-lisp
   ;; Add :diminish to keep minor modes out of the mode line.
-  (use-package diminish)
+  (use-package diminish
+    :demand t)
 #+end_src
 
-Some global hooks.
+* Built-in global modes
+
+Global modes that come installed with Emacs:
 
 #+begin_src emacs-lisp
-  ;; In all modes, delete trailing whitespaces before saving.
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  (repeat-mode t)                ;; Enable repeating key maps
+  (menu-bar-mode 0)              ;; Hide the menu bar
+  (tool-bar-mode 0)              ;; Hide the tool bar
+  (savehist-mode t)              ;; Save minibuffer history
+  (scroll-bar-mode 0)            ;; Hide the scroll bar
+  (xterm-mouse-mode t)           ;; Enable mouse events in terminal Emacs
+  (display-time-mode t)          ;; Display time in mode line / tab bar
+  (fido-vertical-mode 0)         ;; Improved vertical minibuffer completions
+  (column-number-mode t)         ;; Show column number on mode line
+  (tab-bar-history-mode t)       ;; Remember previous tab window configurations
+  (auto-save-visited-mode t)     ;; Auto-save files at an interval
+  (global-visual-line-mode t)    ;; Visually wrap long lines in all buffers
+  (global-auto-revert-mode t)    ;; Refresh buffers with changed local files
+  (winner-mode t)                ;; To navigate window configuration history
+  (tooltip-mode t)               ;;
+  (global-display-line-numbers-mode 0) ;; Disable line numbers on the left by default
 
-  ;; In all prog modes, display line numbers on the left margin.
-  (add-hook 'prog-mode-hook (lambda () (display-line-numbers-mode t)))
-#+end_src
-
-Set some global default values. We use only =setq-default= in case a
-configuration is "buffer local".
-
-#+begin_src emacs-lisp
-  ;; Keep point at the same screen position when scrolling up and down pages.
-  (setq-default scroll-preserve-screen-position t)
-
-  ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
-  (setq-default fill-column 80)
-  (setq-default inhibit-startup-message t)
-  (setq-default visible-bell t)
-
-  ;; Put all backup files here (those that end on a ~).
-  (setq-default backup-directory-alist '(("" . "~/.emacs.d/backup")))
-
-  ;; Use the language's major-mode binding in code blocks.
-  (setq-default org-src-tab-acts-natively t)
-
-  ;; Smoother scrolling from
-  ;; https://www.emacswiki.org/emacs/SmoothScrolling
-  (setq-default scroll-step 1
-		scroll-conservatively 10000)
-#+end_src
-
-One can instruct Emacs to always resolve symlinks, at a performance cost:
-
-#+begin_src emacs-lisp
-  ;(setq find-file-visit-truename t)
-#+end_src
-
-Winner Mode is a global minor mode that allows you to “undo” and “redo” changes
-in WindowConfiguration. Here we navigate our window history:
-
-#+begin_src emacs-lisp
-  (winner-mode +1)
-  ;(define-key winner-mode-map (kbd "<M-left>") #'winner-undo)
-  ;(define-key winner-mode-map (kbd "<M-right>") #'winner-redo)
-#+end_src
-
-Configure some ~tree-sitter~ grammars locations:
-
-#+begin_src emacs-lisp
-  (setq treesit-language-source-alist
-     '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-       (cmake "https://github.com/uyha/tree-sitter-cmake")
-       (css "https://github.com/tree-sitter/tree-sitter-css")
-       (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-       (go "https://github.com/tree-sitter/tree-sitter-go")
-       (html "https://github.com/tree-sitter/tree-sitter-html")
-       (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-       (json "https://github.com/tree-sitter/tree-sitter-json")
-       (make "https://github.com/alemuller/tree-sitter-make")
-       (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-       (python "https://github.com/tree-sitter/tree-sitter-python")
-       (toml "https://github.com/tree-sitter/tree-sitter-toml")
-       (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-       (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-       (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-       (c "https://github.com/tree-sitter/tree-sitter-c")))
-#+end_src
-
-To configure Emacs so that pressing Tab will produce spaces instead of actual
-tab characters:
-
-#+begin_src emacs-lisp
-  (setq-default indent-tabs-mode nil)
-#+end_src
-
-#+begin_src emacs-lisp
-  (setq-default next-error-message-highlight t)
-  (setq-default compilation-window-height 20)
-#+end_src
-
-* Theme
-
-#+begin_src emacs-lisp
-  (load-theme 'wombat t)
-  (set-fringe-style 10) ; Set a fringe of 10 pixels on both sides.
-#+end_src
-
-* Global modes
-
-#+begin_src emacs-lisp :tangle yes
-  (use-package keycast
-    :init
-    (keycast-mode-line-mode t))
-#+end_src
-
-Disable some default modes.
-
-#+begin_src emacs-lisp
-  (scroll-bar-mode -1)
-  (tool-bar-mode -1)
-  (tooltip-mode -1)
-  (menu-bar-mode -1)
-
-  ;; Disable line numbers on the left by default.
-  ;; We enable them for all prog modes below.
-  (global-display-line-numbers-mode -1)
-#+end_src
-
-Enable some default modes.
-
-#+begin_src emacs-lisp
   ;; Show column number at the bottom next to the line number.
   (column-number-mode t)
 
   ;; Refresh buffers automatically.
   (global-auto-revert-mode t)
-
-  ;; Revert Dired and other buffers
-  (setq global-auto-revert-non-file-buffers t)
 
   ;; Save minibuffer history.
   (savehist-mode t)
@@ -181,55 +192,162 @@ Enable some default modes.
   (save-place-mode t)
 
   ;; Break lines at right margin.
-  (auto-fill-mode)
+  (auto-fill-mode t)
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package which-key
-    :diminish
-    :init
-    (which-key-mode))
+  (use-package imenu
+    :straight nil ; Built-in
+    :custom
+    ; Always rescan the buffers (also recommended by Treemacs)
+    (imenu-auto-rescan t))
 #+end_src
 
+* Theme
+
 #+begin_src emacs-lisp
+  (load-theme 'wombat t) ;; t is for "safe"
+
+  (custom-set-faces
+   '(highlight ((t (:inherit region :background "#556b2f"))))
+   '(hl-line ((t (:inherit highlight))))
+   '(line-number ((t (:inherit (shadow default) :background "#2e2e2e")))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (use-package modus-themes
+    :demand t
+    :config
+    ;; Add all your customizations prior to loading the themes
+    ;;(setq modus-themes-italic-constructs t
+    ;;      modus-themes-bold-constructs nil)
+
+    ;; Maybe define some palette overrides, such as by using our presets
+    ;; (setq modus-themes-common-palette-overrides
+    ;;      modus-themes-preset-overrides-intense)
+
+    ;; Load the theme of your choice.
+    (modus-themes-load-theme 'modus-operandi-tinted)
+
+    ;; We have a key mapping to toggle between dark and light themes
+    (setq modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi))
+
+    (define-key global-map (kbd "<f5>") #'modus-themes-rotate))
+
+  (set-fringe-style 20) ; Set a fringe on left and right (in pixels)
+#+end_src
+
+Mode line:
+
+Original, just for reference:
+
+#+begin_src emacs-lisp :tangle no
+  (setq-default mode-line-format '("%e" mode-line-front-space
+                                   (:propertize
+                                    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote
+                                     mode-line-window-dedicated)
+                                    display (min-width (6.0)))
+                                   mode-line-frame-identification mode-line-buffer-identification "   "
+                                   mode-line-position (project-mode-line project-mode-line-format)
+                                   (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info mode-line-end-spaces))
+#+end_src
+
+Ours:
+
+#+begin_src emacs-lisp
+  (setq-default mode-line-format
+                '("%e" mode-line-front-space
+
+                  (:propertize
+                   ("" mode-line-modified mode-line-window-dedicated)
+                   display (min-width (6.0)))
+
+                  mode-line-frame-identification mode-line-buffer-identification
+                  "   "
+                  mode-line-position (project-mode-line project-mode-line-format)
+                  (vc-mode vc-mode)
+                  "   "
+                  mode-line-modes))
+#+end_src
+
+* Global modes
+
+Global modes that do not come with Emacs.
+
+#+begin_src emacs-lisp
+  ;; Helps visualise colors when editing themes and such
   (use-package rainbow-mode)
 #+end_src
 
 #+begin_src emacs-lisp
-  ;; (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
-  ;; (require 'ott-mode)
+  (use-package keycast
+    :demand t ; Demand because we bind keys below and want them always available
+    :custom
+    (keycast-mode-line-insert-after 'mode-line-buffer-identification)
+    (keycast-mode-line-remove-tail-elements nil)
+    :bind (
+           :map my-toggle-map
+                ("k" . keycast-mode-line-mode)))
 #+end_src
 
 #+begin_src emacs-lisp
-  ;; (load "~/devel/HOL/tools/hol-mode")
-  ;; (load "~/devel/HOL/tools/hol-unicode")
+  (use-package which-key
+    :demand t
+    :diminish
+    :config
+    (which-key-mode t))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (setq load-path (cons (expand-file-name "~/devel/ott/emacs") load-path))
+  (require 'ott-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (load "~/devel/HOL/tools/hol-mode")
+  (load "~/devel/HOL/tools/hol-unicode")
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package yasnippet
+    :demand t
+    :diminish yas-minor-mode
     :config
-    (yas-global-mode))
+    (yas-global-mode t))
 
   (use-package yasnippet-snippets
+    :diminish
     :after yasnippet)
+#+end_src
+
+When there are two windows, =ace-window= will call other-window (unless
+aw-dispatch-always is set non-nil). If there are more, each window will have the
+first character of its window label highlighted at the upper left of the window.
+
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :demand t
+    :bind
+    ("M-o" . #'ace-window))
 #+end_src
 
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
-  ;; Make ESC quit prompts.
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-  ;; Shortcut to switch between two buffers.
-  (global-set-key (kbd "M-o")  'mode-line-other-buffer)
-
-  ;; Reload our ~/.emacs.
-  (global-set-key (kbd "C-c <f12>") 'reload-dotemacs)
+  (global-set-key (kbd "C-v") 'scroll-down-command)
+  (global-set-key (kbd "M-v") 'scroll-up-command)
 #+end_src
 
-Allow movement between windows using SHIFT plus arrow.
+The following is now replaced by =ace-window=:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+  ;; Shortcut to switch between two buffers.
+  (global-set-key (kbd "M-o")  'mode-line-other-buffer)
+#+end_src
+
+Allow movement between windows using SHIFT plus arrow:
+
+#+begin_src emacs-lisp :tangle no
   (windmove-default-keybindings)
 #+end_src
 
@@ -255,22 +373,28 @@ Here is a function that we can bind to a keybinding. It reloads our =~/.emacs=.
 #+begin_src emacs-lisp
   (defun reload-dotemacs ()
     (interactive)
-    (load-file "~/.emacs"))
+    (load-file "~/.emacs.d/init.el"))
+
+  ;; Reload our ~/.emacs.
+  (global-set-key (kbd "C-c <f12>") #'reload-dotemacs)
 #+end_src
 
-* Minibuffer completion
+* Completion
 
 Company for in-buffer completion.
 
 #+begin_src emacs-lisp
   (use-package company
-    ;; Enable company-mode in all buffers.
-    :hook (after-init-hook . global-company-mode))
+    :config
+    (global-company-mode t))
 #+end_src
+
+* Minibuffer completion
+** Ivy (disabled)
 
 Ivy is disabled at the moment in favour of Vertico.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package ivy
     :disabled
     :diminish
@@ -293,48 +417,62 @@ Ivy is disabled at the moment in favour of Vertico.
     (ivy-prescient-mode 1))
 #+end_src
 
-** Vertico and friends.
+** Vertico and friends
 
 #+begin_src emacs-lisp
   (use-package vertico
-    :init
-    (vertico-mode))
+    :demand t
+    :hook
+    ;; Works with =file-name-shadow-mode= enabled.
+    (rfn-eshadow-update-overlay . vertico-directory-tidy)
+    :config
+    (vertico-mode t))
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
-    :init
-    (savehist-mode))
+    :demand t
+    :config
+    (savehist-mode t))
 #+end_src
 
 Marginalia for annotations in the minibuffer.
 
 #+begin_src emacs-lisp
   (use-package marginalia
-    :init
-    (marginalia-mode))
+    :demand t
+    :config
+    (marginalia-mode t))
 #+end_src
 
 Consult provides search and navigation commands.
 
 #+begin_src emacs-lisp
   (use-package consult
+    :demand t
     :init
-    (recentf-mode) ; Enables tracking of recent files
+    (recentf-mode t) ; Enables tracking of recent files
     :hook
     ;; Enable automatic preview at point in the *Completions* buffer.
     (completion-list-mode . consult-preview-at-point-mode)
-    :bind (("C-s" . consult-line) ; Search in current buffer
-           ("s-s" . consult-line-multi) ; Seach across project buffers
-           ("s-f" . consult-find) ; Find file in project
-           ("C-x b" . consult-buffer)
-           ("C-x C-b" . consult-buffer)
-           ("C-y" . consult-yank-from-kill-ring)))
+    :bind (("C-y" . consult-yank-from-kill-ring)
+           :map my-search-map
+           ("l" . consult-line)         ; Search (l)ine in current buffer
+           ("L" . consult-line-multi)   ; Seach across project buffers
+           ("i" . consult-imenu)        ; Seach imenu (i)tems
+           ("f" . consult-find)         ; Find file in project
+           ("b" . consult-buffer)       ; Find a buffer
+           ("B" . consult-project-buffer)
+           ("o" . consult-outline)
+           ("e" . consult-compile-error)
+           :map my-other-map
+           ("b" . consult-buffer-other-window)))
 #+end_src
 
 Orderless allows me to search word parts in any order.
 
 #+begin_src emacs-lisp
   (use-package orderless
+    :demand t
     :init
     ;; Configure a custom style dispatcher (see the Consult wiki)
     ;; (setq orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch)
@@ -348,21 +486,23 @@ Orderless allows me to search word parts in any order.
 
 #+begin_src emacs-lisp
   (use-package projectile
+    :demand t
     :diminish projectile-mode
-    :bind (:map projectile-mode-map
-		("C-c p" . projectile-command-map))
+    :bind (
+           :map projectile-mode-map
+  	            ("C-c p" . projectile-command-map))
     :init
-    (projectile-mode +1)
     (when (file-directory-p "~/devel")
       (setq projectile-project-search-path '("~/devel")))
     :config
-    ;; Open project in dired
+    (projectile-mode t)
+    ;; Open project in dired by default
     (setq projectile-switch-project-action 'projectile-dired))
 #+end_src
 
 Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package counsel-projectile
     :disabled
     :after projectile
@@ -372,18 +512,21 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 
 #+begin_src emacs-lisp
   (use-package editorconfig
+    :demand t
     :diminish
     :config
-    (editorconfig-mode 1))
+    (editorconfig-mode t))
 #+end_src
 
 * Search
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package ripgrep)
 #+end_src
 
-* Language Server Protocol
+* Language Server Protocol (LSP)
+
+Vanilla =lsp-mode=:
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
@@ -399,37 +542,94 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
            (c-mode . lsp-deferred)
            (tuareg-mode . lsp-deferred)
            (shell-script-mode . lsp-deferred)))
+#+end_src
 
+Optional packages to support =lsp-mode=:
+
+#+begin_src emacs-lisp
+  (use-package lsp-ui
+    :commands lsp-ui-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :hook
+    (lsp-mode . flycheck-mode))
+#+end_src
+
+* Treemacs
+
+[[https://github.com/Alexander-Miller/treemacs][Treemacs]] - a tree layout file explorer for Emacs:
+#+begin_src emacs-lisp
+  (use-package treemacs
+    :config
+    (treemacs-follow-mode 0)
+    (setq treemacs-space-between-root-nodes nil)
+    :bind (
+           ("M-0"       . treemacs-select-window)
+           ("C-x t 1"   . treemacs-delete-other-windows)
+           ("C-x t t"   . treemacs)
+           ("C-x t d"   . treemacs-select-directory)
+           ("C-x t B"   . treemacs-bookmark)
+           ("C-x t C-t" . treemacs-find-file)
+           ("C-x t M-t" . treemacs-find-tag))
+    :demand t)
+#+end_src
+
+Optionals:
+
+#+begin_src emacs-lisp
+  ;; Allows treemacs icons in dired buffers.
+  (use-package treemacs-icons-dired
+    :demand t
+    :after dired
+    :hook
+    (dired-mode . treemacs-icons-dired-enable-once))
+
+  ;; Integration between lsp-mode and treemacs
   (use-package lsp-treemacs
     :after (treemacs lsp))
 
+  ;; Allows to quickly add your projectile projects to the treemacs workspace.
   (use-package treemacs-projectile
-    :after (treemacs projectile)
-    :ensure t)
+    :after (treemacs projectile))
 
+  ;; It will inform treemacs about (un)staging of files and commits happening in magit.
   (use-package treemacs-magit
-    :after (treemacs magit)
-    :ensure t)
+    :after (treemacs magit))
+#+end_src
 
-  ;; This uses Merlin internally
-  (use-package flycheck-ocaml
-    :ensure t
-    :config
-    (flycheck-ocaml-setup))
+* Tree Sitter
 
-  ;; Show messages on the right-side margin.
-  (use-package lsp-ui
-    :commands lsp-ui-mode
-    :hook ((tuareg-mode . lsp-ui-sideline-mode)
-           (lsp-mode . lsp-ui-mode))
-    :init
-    (setq lsp-ui-sideline-show-diagnostics t)
-    (setq lsp-ui-sideline-show-hover nil)
-    (setq lsp-ui-sideline-update-mode 'point)
-    (setq lsp-ui-sideline-enable t))
+Configure some ~tree-sitter~ grammars locations:
 
-  (use-package lsp-ivy
-    :commands lsp-ivy-workspace-symbol)
+#+begin_src emacs-lisp :tangle no
+  (setq treesit-language-source-alist
+     '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+       (cmake "https://github.com/uyha/tree-sitter-cmake")
+       (css "https://github.com/tree-sitter/tree-sitter-css")
+       (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+       (go "https://github.com/tree-sitter/tree-sitter-go")
+       (html "https://github.com/tree-sitter/tree-sitter-html")
+       (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+       (json "https://github.com/tree-sitter/tree-sitter-json")
+       (make "https://github.com/alemuller/tree-sitter-make")
+       (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+       (python "https://github.com/tree-sitter/tree-sitter-python")
+       (toml "https://github.com/tree-sitter/tree-sitter-toml")
+       (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+       (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+       (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+       (c "https://github.com/tree-sitter/tree-sitter-c")))
+#+end_src
+
+* Compilation
+
+Configurations for the compilation buffer:
+
+#+begin_src emacs-lisp
+  (setq-default next-error-message-highlight t)
+  (setq-default compilation-window-height 20)
 #+end_src
 
 * Programming Environments
@@ -442,6 +642,7 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
     :hook
     ;; Enable in all modes that inherit from prog-mode.
     (prog-mode . git-gutter-mode)
+    (org-mode . git-gutter-mode)
     :config
     ;; Interval in seconds.
     (setq git-gutter:update-interval 1))
@@ -465,29 +666,70 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 ** Lisp
 
 #+begin_src emacs-lisp
+  ;; We enable eldoc only for Lisp
+  (use-package eldoc
+    :straight nil ; Built-in
+    :hook
+    (emacs-lisp-mode . eldoc-mode)
+    (lisp-mode . eldoc-mode)
+    (lisp-interaction-mode . eldoc-mode)
+    :config
+    (global-eldoc-mode 0))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package paredit
-    :hook (lisp-mode . paredit-mode))
+    :hook
+    (emacs-lisp-mode . eldoc-mode)
+    (lisp-mode . paredit-mode)
+    (lisp-interaction-mode . paredit-mode))
+
+  (use-package rainbow-delimiters
+    :custom-face
+
+    ;; Error face
+    (rainbow-delimiters-base-error-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "magenta"))))
+
+    ;; Depths
+    (rainbow-delimiters-depth-1-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "gold"))))
+    (rainbow-delimiters-depth-2-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "spring green"))))
+    (rainbow-delimiters-depth-3-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "dark salmon"))))
+    (rainbow-delimiters-depth-4-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "orange red"))))
+    (rainbow-delimiters-depth-5-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "hot pink"))))
+    (rainbow-delimiters-depth-6-face
+     ((t (:inherit rainbow-delimiters-base-face :foreground "peach puff"))))
+
+    :hook
+    (emacs-lisp-mode . eldoc-mode)
+    (lisp-mode . rainbow-delimiters-mode)
+    (lisp-interaction-mode . rainbow-delimiters-mode))
 #+end_src
 
 ** OCaml
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package tuareg)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package ocamlformat
     :hook (before-save . ocamlformat-before-save))
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package utop
     :config
     ;; Use the opam installed utop
     (setq utop-command "opam exec -- utop -emacs"))
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; OCaml + Make
   (projectile-register-project-type 'ocaml-make '("dune-project" "Makefile")
                                     :project-file "dune-project"
@@ -496,80 +738,81 @@ Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
 
 ** fstar
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package fstar-mode)
 #+end_src
 
 ** Org Mode
 
 #+begin_src emacs-lisp
-        (defun org-mode-setup ()
-          (org-indent-mode)
-          (diminish 'org-indent-mode))
+  (defun org-mode-setup ()
+    (org-indent-mode)
+    (diminish 'org-indent-mode))
 
-        (defun org-mode-font-setup ()
-          ;; Set faces for heading levels
-          (dolist (face '((org-level-1 . 1.2)
-                          (org-level-2 . 1.1)
-                          (org-level-3 . 1.05)
-                          (org-level-4 . 1.0)
-                          (org-level-5 . 1.1)
-                          (org-level-6 . 1.1)
-                          (org-level-7 . 1.1)
-                          (org-level-8 . 1.1)))
-            (set-face-attribute (car face) nil
-                                :font "Cantarell" :weight 'regular
-                                :height (cdr face))))
+  (defun org-mode-font-setup ()
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil
+                          :font "Cantarell" :weight 'regular
+                          :height (cdr face))))
 
-        (use-package org
-          :after
-          (git-gutter)
-          :hook
-          (org-mode . org-mode-setup)
-          (org-mode . git-gutter-mode)
-          :custom
-          (org-ellipsis " …")
-          (org-hide-emphasis-markers t)
-
-          ; Agenda:
-          (org-agenda-start-with-log-mode t)
-          (org-log-done 'time) ; Use current time with completing a task
-          (org-log-into-drawer t) ; Put properties in closed drawer
-          ;(org-directory "~/devel/org-mode-my-files")
-          (org-deadline-warning-days 2)
-          ; Files to be used for agenda display:
-          (org-agenda-files '("tasks.org"))
-
-          :config
-          (org-mode-font-setup)
-          ;; Remove the default underline style from elipsis.
-          (set-face-underline 'org-ellipsis nil))
-
-        ;; Replace stars with utf-8 chars.
-        (use-package org-bullets
-          :hook (org-mode . org-bullets-mode)
-          :custom
-          (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-        (defun org-mode-visual-fill ()
-          (setq visual-fill-column-width 100
-                visual-fill-column-center-text t)
-          (visual-fill-column-mode 1))
-
-        ;; Center text.
-        (use-package visual-fill-column
-          :hook
-          (org-mode . org-mode-visual-fill)
-          (markdown-mode . org-mode-visual-fill))
-#+end_src
-
-The org-appear package helps by displaying the markers while the cursor is on a
-rich text word:
-
-#+begin_src emacs-lisp
-  (use-package org-appear
+  (use-package org
+    :straight nil ; Built-in
     :hook
-    (org-mode . org-appear-mode))
+    (org-mode . org-mode-setup)
+    (org-mode . git-gutter-mode)
+    :custom
+    (org-ellipsis " …")
+    (org-hide-emphasis-markers t)
+    ;; Use the language's major-mode binding in code blocks
+    (org-src-tab-acts-natively t)
+    ;; Do not let org split the heading when pressing M-RET
+    (org-M-RET-may-split-line'((default . nil)))
+    ;; Insert new heading below the existing content if any
+    (org-insert-heading-respect-content t)
+
+    ;; Agenda:
+    (org-agenda-start-with-log-mode t)
+    ;; Use current time with completing a task
+    (org-log-done 'time)
+    ;; Put properties in closed drawer
+    (org-log-into-drawer t)
+    (org-directory "~/devel/org-mode-my-files")
+    (org-deadline-warning-days 2)
+    ;; Files to be used for agenda display:
+    (org-agenda-files (list org-directory))
+
+    (org-todo-keywords '((sequence "TODO(t)" "|" "CANCEL(c!)" "DONE(d!)")))
+
+    :config
+    (org-mode-font-setup)
+    ;; Remove the default underline style from elipsis.
+    (set-face-underline 'org-ellipsis nil))
+
+  ;; Replace stars with utf-8 chars.
+  (use-package org-bullets
+    :hook
+    (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+  (defun org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  ;; Center text.
+  (use-package visual-fill-column
+    :hook
+    (org-mode . org-mode-visual-fill)
+    (markdown-mode . org-mode-visual-fill))
 #+end_src
 
 Allow me to change the size of an image as displayed in Org mode while leaving
@@ -581,7 +824,7 @@ the actual file unchanged:
 
 ** Org Roam
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package org-roam
     :custom
     (org-roam-directory (file-truename "~/devel/org-roam-my-files/"))
@@ -635,7 +878,7 @@ the actual file unchanged:
     (require 'org-roam-protocol))
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package deft
     :after org-roam
     :bind
@@ -653,20 +896,20 @@ the actual file unchanged:
     (deft-auto-save-interval 300))
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package flyspell)
 #+end_src
 
 ** Latex
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package tex
-    :ensure auctex)
+    :straight auctex)
 #+end_src
 
 ** Babel
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; Evalute Babel code without asking for confirmation.
   (set 'org-confirm-babel-evaluate nil)
 
@@ -689,7 +932,7 @@ the actual file unchanged:
 
 ** Standard ML
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package sml-mode)
 #+end_src
 
@@ -732,7 +975,7 @@ the actual file unchanged:
         (inhibit-switch-frame . t)))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 ;; (use-package pdf-tools
 ;;   ;; :pin manual ;; manually update
 ;;   :config
@@ -754,7 +997,7 @@ the actual file unchanged:
 ;;   (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
   ;; (pdf-tools-install)
   ;; (setq pdf-annot-default-annotation-properties
   ;;       '((highlight
@@ -764,19 +1007,19 @@ the actual file unchanged:
   ;;         (squiggly
   ;;          (color . "orange"))
   ;;         (strike-out
-  ;;          (color . "red")))))
+  ;;          (color . "red"))))
 #+end_src
 
 ** Scheme
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package geiser)
   (use-package geiser-guile)
 #+end_src
 
 ** Rust
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package rust-mode
     :config
     ; Force indentation to use spaces.
@@ -787,22 +1030,21 @@ the actual file unchanged:
 
 ** JSON
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package json-mode)
 #+end_src
 
 ** Go
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package go-mode
     :hook (before-save . gofmt-before-save))
 #+end_src
 
 ** Idris
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
   (use-package idris-mode
-    :ensure t
     :custom
     (idris-interpreter-path "idris2"))
 
@@ -824,24 +1066,24 @@ the actual file unchanged:
 
 ** LLVM
 
-#+begin_src emacs-lisp :tangle yes
+Syntax highlighting mode for LLVM assembly files:
+#+begin_src emacs-lisp
   (setq load-path (cons (expand-file-name "~/devel/llvm-project/llvm/utils/emacs/") load-path))
-  (require 'llvm-mode)
+  (require 'llvm-mode) ;; Enables automatically in files ending in .ll
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+The following =clang-format= configuration expects a =.clang-format= file that can
+be generated with: ~$ clang-format -style=llvm -dump-config > .clang-format~
+
+#+begin_src emacs-lisp
   (use-package clang-format
-    :init
-    (setq-default clang-format-style "file")
-    (setq-default clang-format-fallback-style "llvm")
-    :config
-    (add-hook 'c-mode-hook (lambda ()
-          		   (add-hook 'before-save-hook 'clang-format-buffer nil 'local))))
+    :hook
+    (c-mode . clang-format-on-save-mode))
 #+end_src
 
 ** C
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
   ;; Frama C
   (setq load-path (cons (expand-file-name "~/.opam/5.3.0/share/frama-c/share/emacs/") load-path))
   (autoload 'acsl-mode "acsl" "Major mode for editing ACSL code" t)
@@ -852,7 +1094,7 @@ the actual file unchanged:
 
 We use vterm with defaults for the momment.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;; (use-package vterm)
 #+end_src
 
@@ -863,8 +1105,17 @@ dirs.
 
 #+begin_src emacs-lisp
   (use-package dired
-    :ensure nil
+    :straight nil ; Built-in
     :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump))
-    :custom ((dired-listing-switches "-ltgo")))
+    :bind (
+           ("C-x C-j" . dired-jump)
+           :map my-other-map
+           ("f" . find-file-other-window))
+    :custom
+    (delete-by-moving-to-trash t)
+    (trash-directory "~/trash/")
+    (file-name-shadow-mode t)
+    (dired-listing-switches "-ltgo")
+    :hook
+    (dired-mode-hook . dired-hide-details-mode))
 #+end_src
