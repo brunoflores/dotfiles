@@ -152,21 +152,52 @@ Together with use-package, =:diminish= can hide minor modes from the mode line.
 Global modes that come installed with Emacs:
 
 #+begin_src emacs-lisp
-  (repeat-mode t)                ;; Enable repeating key maps
-  (menu-bar-mode 0)              ;; Hide the menu bar
-  (tool-bar-mode 0)              ;; Hide the tool bar
-  (scroll-bar-mode 0)            ;; Hide the scroll bar
-  (xterm-mouse-mode t)           ;; Enable mouse events in terminal Emacs
-  (display-time-mode t)          ;; Display time in mode line / tab bar
-  (fido-vertical-mode 0)         ;; Improved vertical minibuffer completions
-  (column-number-mode t)         ;; Show column number on mode line
-  (tab-bar-history-mode t)       ;; Remember previous tab window configurations
-  (auto-save-visited-mode t)     ;; Auto-save files at an interval
-  (global-visual-line-mode t)    ;; Visually wrap long lines in all buffers
-  (global-auto-revert-mode t)    ;; Refresh buffers with changed local files
-  (winner-mode t)                ;; To navigate window configuration history
-  (tooltip-mode t)               ;;
-  (global-display-line-numbers-mode 0) ;; Disable line numbers on the left by default
+  ;; Enable repeating key maps
+  (repeat-mode t)
+
+  ;; Hide the menu bar
+  (menu-bar-mode 0)
+
+  ;; Hide the tool bar
+  (tool-bar-mode 0)
+
+  ;; Hide the scroll bar
+  (scroll-bar-mode 0)
+
+  ;; Enable mouse events in terminal Emacs
+  (xterm-mouse-mode t)
+
+  ;; Display time in mode line / tab bar
+  (display-time-mode t)
+
+  ;; Improved vertical minibuffer completions
+  (fido-vertical-mode 0)
+
+  ;; Show column number on mode line
+  (column-number-mode t)
+
+  ;; Remember previous tab window configurations
+  (tab-bar-history-mode t)
+
+  ;; Auto-save files at an interval
+  (auto-save-visited-mode t)
+
+  ;; Visually wrap long lines in all buffers
+  (global-visual-line-mode t)
+
+  ;; Refresh buffers with changed local files
+  (global-auto-revert-mode t)
+
+  ;; To navigate window configuration history
+  (winner-mode t)
+
+  ;; When this global minor mode is enabled, Emacs displays help
+  ;; text (e.g. for buttons and menu items that you put the mouse on)
+  ;; in a pop-up window.
+  (tooltip-mode t)
+
+  ;; Disable line numbers on the left by default
+  (global-display-line-numbers-mode 0)
 
   ;; Show column number at the bottom next to the line number.
   (column-number-mode t)
@@ -711,12 +742,12 @@ Configurations for the compilation buffer:
     :config
     ;; Set faces for error and levels
     (dolist (face '((rainbow-delimiters-base-error-face . "magenta")
-                    (rainbow-delimiters-depth-1-face . "gold")
-                    (rainbow-delimiters-depth-2-face . "spring green")
-                    (rainbow-delimiters-depth-3-face . "dark salmon")
-                    (rainbow-delimiters-depth-4-face . "orange red")
-                    (rainbow-delimiters-depth-5-face . "hot pink")
-                    (rainbow-delimiters-depth-6-face . "peach puff")))
+                    (rainbow-delimiters-depth-1-face    . "gold")
+                    (rainbow-delimiters-depth-2-face    . "spring green")
+                    (rainbow-delimiters-depth-3-face    . "dark salmon")
+                    (rainbow-delimiters-depth-4-face    . "tomato")
+                    (rainbow-delimiters-depth-5-face    . "hot pink")
+                    (rainbow-delimiters-depth-6-face    . "peach puff")))
       (set-face-attribute (car face) nil
                           :foreground (cdr face)))
 
