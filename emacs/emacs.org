@@ -778,8 +778,9 @@ Configurations for the compilation buffer:
     :hook
     (org-mode . org-mode-setup)
     (org-mode . git-gutter-mode)
-    :bind (("M-n" . org-move-subtree-down)
-           ("M-p" . org-move-subtree-up))
+    :bind (:map org-mode-map
+                ("M-n" . org-move-subtree-down)
+                ("M-p" . org-move-subtree-up))
     :custom
     (org-ellipsis " …")
     (org-hide-emphasis-markers t)
