@@ -242,8 +242,13 @@ From =recentf-mode=:
   (use-package savehist
     :straight nil ; Built-in
     :demand t
+    :custom
+    (savehist-save-minibuffer-history t)
     :config
     (savehist-mode t)
+
+    ;; Variables here must be printable with the Lisp printer.
+    ;; Seems like ones defined in C cannot be saved.
     (add-to-list 'savehist-additional-variables  'compile-command)
     (add-to-list 'savehist-additional-variables  'command-history)
     (add-to-list 'savehist-additional-variables  'kill-ring))
