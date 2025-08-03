@@ -92,16 +92,6 @@ Some global hooks:
   (add-hook 'before-save-hook #'delete-trailing-whitespace)
 #+end_src
 
-From =recentf-mode=:
-  By default, only operations like opening a file, writing a buffer
-  to a file, and killing a buffer is counted as "operating" on
-  the file.  If instead you want to prioritize files that appear in
-  buffers you switch to a lot, you can say something like the following:
-
-#+begin_src emacs-lisp
-  (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
-#+end_src
-
 * Package management
 
 Configure package repositories:
@@ -165,7 +155,6 @@ Global modes that come installed with Emacs:
   (repeat-mode t)                ;; Enable repeating key maps
   (menu-bar-mode 0)              ;; Hide the menu bar
   (tool-bar-mode 0)              ;; Hide the tool bar
-  (savehist-mode t)              ;; Save minibuffer history
   (scroll-bar-mode 0)            ;; Hide the scroll bar
   (xterm-mouse-mode t)           ;; Enable mouse events in terminal Emacs
   (display-time-mode t)          ;; Display time in mode line / tab bar
@@ -185,9 +174,6 @@ Global modes that come installed with Emacs:
   ;; Refresh buffers automatically.
   (global-auto-revert-mode t)
 
-  ;; Save minibuffer history.
-  (savehist-mode t)
-
   ;; Save place in each file.
   (save-place-mode t)
 
@@ -198,9 +184,38 @@ Global modes that come installed with Emacs:
 #+begin_src emacs-lisp
   (use-package imenu
     :straight nil ; Built-in
+    :demand t
     :custom
     ; Always rescan the buffers (also recommended by Treemacs)
     (imenu-auto-rescan t))
+#+end_src
+
+From =recentf-mode=:
+  By default, only operations like opening a file, writing a buffer
+  to a file, and killing a buffer is counted as "operating" on
+  the file.  If instead you want to prioritize files that appear in
+  buffers you switch to a lot, you can say something like the following:
+
+#+begin_src emacs-lisp
+  (use-package recentf
+    :straight nil ; Built-in
+    :demand t
+    :config
+    (recentf-mode t)
+    (add-hook 'buffer-list-update-hook #'recentf-track-opened-file))
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; Persist history over Emacs restarts
+  ;; Vertico sorts by history position
+  (use-package savehist
+    :straight nil ; Built-in
+    :demand t
+    :config
+    (savehist-mode t)
+    (add-to-list 'savehist-additional-variables  'compile-command)
+    (add-to-list 'savehist-additional-variables  'command-history)
+    (add-to-list 'savehist-additional-variables  'kill-ring))
 #+end_src
 
 * Theme
@@ -427,12 +442,6 @@ Ivy is disabled at the moment in favour of Vertico.
     (rfn-eshadow-update-overlay . vertico-directory-tidy)
     :config
     (vertico-mode t))
-
-  ;; Persist history over Emacs restarts. Vertico sorts by history position.
-  (use-package savehist
-    :demand t
-    :config
-    (savehist-mode t))
 #+end_src
 
 Marginalia for annotations in the minibuffer.
@@ -449,8 +458,6 @@ Consult provides search and navigation commands.
 #+begin_src emacs-lisp
   (use-package consult
     :demand t
-    :init
-    (recentf-mode t) ; Enables tracking of recent files
     :hook
     ;; Enable automatic preview at point in the *Completions* buffer.
     (completion-list-mode . consult-preview-at-point-mode)
@@ -704,6 +711,9 @@ Configurations for the compilation buffer:
      ((t (:inherit rainbow-delimiters-base-face :foreground "hot pink"))))
     (rainbow-delimiters-depth-6-face
      ((t (:inherit rainbow-delimiters-base-face :foreground "peach puff"))))
+
+    :bind (:map my-toggle-map
+                ("r" . rainbow-delimiters-mode))
 
     :hook
     (emacs-lisp-mode . eldoc-mode)
