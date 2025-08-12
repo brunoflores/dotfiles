@@ -265,6 +265,15 @@ From =recentf-mode=:
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
+  (defvar-keymap space-map
+    "SPC" #'execute-extended-command
+    "s" #'save-buffer
+    "f" #'find-file
+    "g" #'magit
+    "b" #'consult-buffer)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
   (global-set-key (kbd "C-v") 'scroll-down-command)
   (global-set-key (kbd "M-v") 'scroll-up-command)
 #+end_src
@@ -282,7 +291,7 @@ Allow movement between windows using SHIFT plus arrow:
   (windmove-default-keybindings)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
  ;; (defvar default-map (make-sparse-keymap)
  ;;   "Base keymap for all leader key commands.")
 
@@ -296,13 +305,6 @@ Allow movement between windows using SHIFT plus arrow:
 * Global modes
 
 Global modes that do not come with Emacs.
-
-#+begin_src emacs-lisp
-    (defvar-keymap space-map
-      "SPC" #'execute-extended-command
-      "f" #'find-file
-      "b" #'consult-buffer)
-#+end_src
 
 #+begin_src emacs-lisp
   (use-package evil
@@ -327,12 +329,12 @@ Global modes that do not come with Emacs.
 #+end_src
 
 #+begin_src emacs-lisp
-    (use-package key-chord
-      :after evil
-      :config
-      (key-chord-define-global "fd" 'evil-normal-state)
-      (key-chord-define-global "ff" space-map)
-      (key-chord-mode t))
+  (use-package key-chord
+    :after evil
+    :config
+    (key-chord-define-global "fd" 'evil-normal-state)
+    (key-chord-define-global "fg" space-map)
+    (key-chord-mode t))
 #+end_src
 
 #+begin_src emacs-lisp
