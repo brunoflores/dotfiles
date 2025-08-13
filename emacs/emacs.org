@@ -265,12 +265,50 @@ From =recentf-mode=:
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
+  (use-package transient
+    :demand t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (transient-define-prefix git-transient ()
+    "Git transient"
+    ["Hunks"
+     ("j" "next hunk" git-gutter:next-hunk :transient t)
+     ("k" "prev hunk" git-gutter:previous-hunk :transient t)]
+    ["Actions"
+     ("g" "magit" magit)])
+
+  (transient-define-prefix space-transient ()
+    "Entry"
+    [["File"
+      ("s" "save" save-buffer)
+      ("f" "find" find-file)
+      "Buffers"
+      ("b" "consult-buffer" consult-buffer)
+      "Git"
+      ("g" "git" git-transient)
+      "Other"
+      ("SPC" "command" execute-extended-command)]
+     ["Dired"
+      ("j" "jump" dired-jump)]])
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
   (defvar-keymap space-map
     "SPC" #'execute-extended-command
     "s" #'save-buffer
     "f" #'find-file
-    "g" #'magit
+    "g" #'git-transient
     "b" #'consult-buffer)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package key-chord
+     :after evil
+     :config
+     (key-chord-define-global "fd" 'evil-normal-state)
+     (key-chord-define-global "fg" 'space-transient)
+     (key-chord-mode t))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -311,11 +349,26 @@ Global modes that do not come with Emacs.
     :demand t
     :custom
     (evil-want-keybinding nil) ; For evil-collection
+    :bind (:map evil-motion-state-map
+           ("C-y" . consult-yank-from-kill-ring)
+           :map evil-insert-state-map
+           ("C-y" . consult-yank-from-kill-ring)
+           :map evil-visual-state-map
+           ("C-w" . kill-region)
+           :map evil-normal-state-map
+           ("C-w" . kill-region))
     :config
-    (evil-mode t))
+    (evil-mode t)
 
     ;; (keymap-set global-map "SPC" space-map)
-    ;; (keymap-set evil-normal-state-map "SPC" space-map))
+    ;; (keymap-set evil-normal-state-map "SPC" space-map)
+
+
+    ;; (keymap-set evil-visual-state-map "C-w" #'kill-region)
+    ;; (keymap-set evil-visual-line-state-map "C-w" #'kill-region)
+    ;; (keymap-set evil-normal-state-map "C-w" #'kill-region)
+
+    )
 #+end_src
 
 #+begin_src emacs-lisp
@@ -326,15 +379,6 @@ Global modes that do not come with Emacs.
     :demand t
     :config
     (evil-collection-init))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package key-chord
-    :after evil
-    :config
-    (key-chord-define-global "fd" 'evil-normal-state)
-    (key-chord-define-global "fg" space-map)
-    (key-chord-mode t))
 #+end_src
 
 #+begin_src emacs-lisp
