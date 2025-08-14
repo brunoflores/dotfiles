@@ -283,6 +283,12 @@ From =recentf-mode=:
     ["Toggles"
      ("l" "line numbers" display-line-numbers-mode :transient t)])
 
+  (transient-define-prefix project-transient ()
+    "Project transient"
+    [("p" "switch" projectile-switch-project)
+     ("fo" "find other" projectile-find-other-file)
+     ("ff" "file" projectile-find-file)])
+
   (transient-define-prefix entry-transient ()
     "Entry"
     [["File"
@@ -300,7 +306,7 @@ From =recentf-mode=:
       ("l" "consult line" consult-line)
       ("L" "consult line multi" consult-line-multi)
       "Projects"
-      ("p" "" projectile-switch-project)
+      ("p" "" project-transient)
       "Toggles"
       ("t" "" toggles-transient)]])
 #+end_src
@@ -683,8 +689,11 @@ Orderless allows me to search word parts in any order.
       (setq projectile-project-search-path '("~/devel")))
     :config
     (projectile-mode t)
+
     ;; Open project in dired by default
-    (setq projectile-switch-project-action 'projectile-dired))
+    (setq projectile-switch-project-action 'projectile-dired)
+
+    (add-to-list 'projectile-other-file-alist '("c" "objdump")))
 #+end_src
 
 Disable =counsel-projectile= if using Vertico + Consult instead of Ivy.
