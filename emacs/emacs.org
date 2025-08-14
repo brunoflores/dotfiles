@@ -62,7 +62,10 @@ configuration is "buffer local".
    find-file-visit-truename t
 
    ;; Tell global-auto-revert-mode to act also on Dired buffers
-   global-auto-revert-non-file-buffers t)
+   global-auto-revert-non-file-buffers t
+
+   ;; Relative line numbers
+   display-line-numbers 'relative)
 #+end_src
 
 Personal key maps:
@@ -198,7 +201,6 @@ Global modes that come installed with Emacs:
 
   ;; Disable line numbers on the left by default
   (global-display-line-numbers-mode 0)
-  (display-line-numbers 'relative)
 
   ;; Show column number at the bottom next to the line number.
   (column-number-mode t)
