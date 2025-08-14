@@ -965,8 +965,6 @@ Configurations for the compilation buffer:
     :custom
     (org-ellipsis " …")
     (org-hide-emphasis-markers t)
-    ;; Use the language's major-mode binding in code blocks
-    (org-src-tab-acts-natively t)
     ;; Do not let org split the heading when pressing M-RET
     (org-M-RET-may-split-line'((default . nil)))
     ;; Insert new heading below the existing content if any
