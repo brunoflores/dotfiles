@@ -278,6 +278,11 @@ From =recentf-mode=:
     ["Actions"
      ("g" "magit" magit)])
 
+  (transient-define-prefix toggles-transient ()
+    "Toggles transient"
+    ["Toggles"
+     ("l" "line numbers" display-line-numbers-mode :transient t)])
+
   (transient-define-prefix space-transient ()
     "Entry"
     [["File"
@@ -290,7 +295,14 @@ From =recentf-mode=:
       "Other"
       ("SPC" "command" execute-extended-command)]
      ["Dired"
-      ("j" "jump" dired-jump)]])
+      ("j" "jump" dired-jump)
+      "Search"
+      ("l" "consult line" consult-line)
+      ("L" "consult line multi" consult-line-multi)
+      "Projects"
+      ("p" "" projectile-switch-project)
+      "Toggles"
+      ("t" "" toggles-transient)]])
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -356,7 +368,8 @@ Global modes that do not come with Emacs.
            :map evil-visual-state-map
            ("C-w" . kill-region)
            :map evil-normal-state-map
-           ("C-w" . kill-region))
+           ("C-w" . kill-region)
+           ("/" . consult-line))
     :config
     (evil-mode t)
 
