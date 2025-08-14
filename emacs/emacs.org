@@ -198,6 +198,7 @@ Global modes that come installed with Emacs:
 
   ;; Disable line numbers on the left by default
   (global-display-line-numbers-mode 0)
+  (display-line-numbers 'relative)
 
   ;; Show column number at the bottom next to the line number.
   (column-number-mode t)
