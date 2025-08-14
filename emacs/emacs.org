@@ -283,7 +283,7 @@ From =recentf-mode=:
     ["Toggles"
      ("l" "line numbers" display-line-numbers-mode :transient t)])
 
-  (transient-define-prefix space-transient ()
+  (transient-define-prefix entry-transient ()
     "Entry"
     [["File"
       ("s" "save" save-buffer)
@@ -319,7 +319,7 @@ From =recentf-mode=:
      :after evil
      :config
      (key-chord-define-global "fd" 'evil-normal-state)
-     (key-chord-define-global "fg" 'space-transient)
+     (key-chord-define-global "fg" 'entry-transient)
      (key-chord-mode t))
 #+end_src
 
@@ -355,6 +355,14 @@ Allow movement between windows using SHIFT plus arrow:
 * Global modes
 
 Global modes that do not come with Emacs.
+
+#+begin_src emacs-lisp
+  (use-package embark
+    :bind
+    (("C-." . embark-act)))
+
+  (use-package embark-consult)
+#+end_src
 
 #+begin_src emacs-lisp
   (use-package evil
