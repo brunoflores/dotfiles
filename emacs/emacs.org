@@ -289,6 +289,14 @@ From =recentf-mode=:
   (transient-define-prefix toggles-transient ()
     "Toggles transient"
     ["Toggles"
+     ("t" "treemacs" treemacs)
+     ("s" "LSP symbols"
+      (lambda ()
+        (interactive)
+        (let* ((buffer-name "*LSP Symbols List*")
+              (exists (get-buffer buffer-name)))
+          (if exists (kill-buffer buffer-name)
+            (lsp-treemacs-symbols)))) :transient t)
      ("l" "line numbers" display-line-numbers-mode :transient t)])
 
   (transient-define-prefix project-transient ()
