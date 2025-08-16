@@ -273,6 +273,11 @@ From =recentf-mode=:
 #+end_src
 
 #+begin_src emacs-lisp
+  (transient-define-prefix major-mode-transient ()
+    "Major Mode transient"
+    ["Compilation"
+     ("d" "disaster" disaster :if-mode c-mode)])
+
   (transient-define-prefix git-transient ()
     "Git transient"
     ["Hunks"
@@ -406,6 +411,7 @@ Global modes that do not come with Emacs.
     ;; (keymap-set global-map "SPC" space-map)
     ;; (keymap-set evil-normal-state-map "SPC" space-map)
 
+    (keymap-set evil-normal-state-map "," 'major-mode-transient)
 
     ;; (keymap-set evil-visual-state-map "C-w" #'kill-region)
     ;; (keymap-set evil-visual-line-state-map "C-w" #'kill-region)
@@ -1296,6 +1302,13 @@ be generated with: ~$ clang-format -style=llvm -dump-config > .clang-format~
   (setq load-path (cons (expand-file-name "~/.opam/5.3.0/share/frama-c/share/emacs/") load-path))
   (autoload 'acsl-mode "acsl" "Major mode for editing ACSL code" t)
   (add-to-list 'lsp-language-id-configuration '(acsl-mode . "c"))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package disaster
+    :custom
+    (disaster-objdump "objdump --disassemble --source --line-numbers --no-show-raw-insn")
+    (disaster-project-root-files '((".git"))))
 #+end_src
 
 * Terminals
