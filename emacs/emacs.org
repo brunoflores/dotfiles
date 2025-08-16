@@ -289,7 +289,20 @@ From =recentf-mode=:
   (transient-define-prefix project-transient ()
     "Project transient"
     [("p" "switch" projectile-switch-project)
+     ("b" "buffers" projectile-switch-to-buffer)
+     ("fr" "find recent" projectile-recentf)
      ("fo" "find other" projectile-find-other-file)
+     ("fm" "find others"
+      (lambda ()
+        (interactive)
+        (let* ((project-root (projectile-acquire-root))
+               (initial (concat (file-name-base buffer-file-name) "\\."))
+               (file (projectile-completing-read "Find file: "
+                                                 (projectile-project-files project-root)
+                                                 :initial-input initial)))
+          (when file
+            (find-file (expand-file-name file project-root))
+            (run-hooks 'projectile-find-file-hook)))))
      ("ff" "file" projectile-find-file)])
 
   (transient-define-prefix entry-transient ()
