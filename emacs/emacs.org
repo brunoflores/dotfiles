@@ -33,7 +33,7 @@ configuration is "buffer local".
    ;; In number of lines
    scroll-margin 20
 
-   ;; Instruct auto-save-mode to save to the current file, not a backup file
+   ;; Disable
    auto-save-default nil
 
    ;; No backup files, please
