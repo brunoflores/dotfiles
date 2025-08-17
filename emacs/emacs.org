@@ -64,6 +64,9 @@ configuration is "buffer local".
    ;; Tell global-auto-revert-mode to act also on Dired buffers
    global-auto-revert-non-file-buffers t
 
+   ;; Focus on help window
+   help-window-select t
+
    ;; Relative line numbers
    display-line-numbers 'relative)
 #+end_src
