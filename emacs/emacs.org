@@ -880,7 +880,7 @@ Configurations for the compilation buffer:
 * Programming Environments
 ** Git
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; https://github.com/emacsorphanage/git-gutter
   (use-package git-gutter
     :diminish
@@ -891,7 +891,9 @@ Configurations for the compilation buffer:
     :config
     ;; Interval in seconds.
     (setq git-gutter:update-interval 1))
+#+end_src
 
+#+begin_src emacs-lisp
   ;; https://github.com/emacsorphanage/git-gutter-fringe
   (use-package git-gutter-fringe
     :config
@@ -902,6 +904,7 @@ Configurations for the compilation buffer:
     ;; Red
     (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
+#+begin_src emacs-lisp
   (use-package magit
     :custom
     ; By default, Magit opens status in a new window.
