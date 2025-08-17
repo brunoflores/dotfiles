@@ -400,10 +400,23 @@ Global modes that do not come with Emacs.
 #+end_src
 
 #+begin_src emacs-lisp
+  (defun mode-line-render ()
+    (let ((face '((normal . "gray20")
+                  (visual . "SteelBlue")
+                  (replace . "Magenta")
+                  (operator . "Magenta")
+                  (motion . "Magenta")
+                  (emacs . "Magenta")
+                  (insert . "SeaGreen")))
+          (state (symbol-value 'evil-state)))
+      (set-face-attribute 'mode-line nil
+                          :background (cdr (assoc state face)))))
+
   (use-package evil
     :demand t
     :custom
     (evil-want-keybinding nil) ; For evil-collection
+    (evil-mode-line-format nil) ; Hide. Personal preference
     :bind (:map evil-motion-state-map
            ("C-y" . consult-yank-from-kill-ring)
            :map evil-insert-state-map
@@ -424,6 +437,8 @@ Global modes that do not come with Emacs.
     ;; (keymap-set evil-visual-state-map "C-w" #'kill-region)
     ;; (keymap-set evil-visual-line-state-map "C-w" #'kill-region)
     ;; (keymap-set evil-normal-state-map "C-w" #'kill-region)
+
+    (add-hook 'post-command-hook #'mode-line-render)
 
     )
 #+end_src
