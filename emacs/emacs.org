@@ -1000,6 +1000,8 @@ Configurations for the compilation buffer:
     ;; Insert new heading below the existing content if any
     (org-insert-heading-respect-content t)
 
+    (org-src-tab-acts-natively t)
+
     ;; Agenda:
     (org-agenda-start-with-log-mode t)
     ;; Use current time with completing a task
