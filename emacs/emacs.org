@@ -451,6 +451,7 @@ Global modes that do not come with Emacs.
     :after evil
     :custom
     (evil-collection-setup-minibuffer t) ; Opt-in
+    (evil-collection-outline-bind-tab-p t) ; tab maps to outline-cycle
     :demand t
     :config
     (evil-collection-init))
