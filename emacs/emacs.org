@@ -182,8 +182,8 @@ Global modes that come installed with Emacs:
   ;; Remember previous tab window configurations
   (tab-bar-history-mode t)
 
-  ;; Auto-save files at an interval
-  (auto-save-visited-mode t)
+  ;; (Disable) Auto-save files at an interval
+  (auto-save-visited-mode 0)
 
   ;; Visually wrap long lines in all buffers
   (global-visual-line-mode t)
