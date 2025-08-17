@@ -353,8 +353,8 @@ From =recentf-mode=:
   (use-package key-chord
      :after evil
      :config
-     (key-chord-define-global "fd" 'evil-normal-state)
-     (key-chord-define-global "fg" 'entry-transient)
+     (key-chord-define-global "jk" 'evil-normal-state)
+     (key-chord-define-global "df" 'entry-transient)
      (key-chord-mode t))
 #+end_src
 
