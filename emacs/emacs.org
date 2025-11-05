@@ -1303,7 +1303,7 @@ the actual file unchanged:
 
 ** Babel
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   ;; Evalute Babel code without asking for confirmation.
   (set 'org-confirm-babel-evaluate nil)
 
@@ -1360,6 +1360,20 @@ the actual file unchanged:
                   '("plum" "dark khaki" "coral" "cyan" "gold"
          		  (highlight (color . "gold")) (underline (color . "blue"))
          		  (squiggly (color . "orange")) (strike-out (color . "red"))))
+    (setq-default pdf-annot-default-annotation-properties
+                  '((t
+                     (label . ""))
+                    (text
+                     (color . "#ff0000")
+                     (icon . "Note"))
+                    (highlight
+                     (color . "gold"))
+                    (underline
+                     (color . "blue"))
+                    (squiggly
+                     (color . "orange"))
+                    (strike-out
+                     (color . "red"))))
     (customize-set-variable
      'display-buffer-alist
      '(("^\\*outline"
@@ -1367,6 +1381,19 @@ the actual file unchanged:
         (side . right)
         (window-width . 0.35)
         (inhibit-switch-frame . t)))))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+  (use-package org-pdftools
+    :after org
+    :hook (org-load . org-pdftools-setup-link))
+
+  ;; Optional: quickly extract highlights into Org
+  (use-package org-noter-pdftools
+    :after (org-noter pdf-tools)
+    :config
+    (with-eval-after-load 'pdf-annot
+      (setq pdf-annot-activate-created-annotations t)))
 #+end_src
 
 #+begin_src emacs-lisp
