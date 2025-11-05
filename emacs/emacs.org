@@ -786,6 +786,7 @@ Vanilla =lsp-mode=:
     :hook (;; Enable languages here:
            (c-mode . lsp-deferred)
            (tuareg-mode . lsp-deferred)
+           (go-mode . lsp-deferred)
            (shell-script-mode . lsp-deferred)))
 #+end_src
 
@@ -1178,10 +1179,19 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     (org-log-done 'time)
     ;; Put properties in closed drawer
     (org-log-into-drawer t)
-    (org-directory "~/devel/org-mode-my-files")
+    (org-directory "~/devel/www-roadmap/org")
     (org-deadline-warning-days 2)
     ;; Files to be used for agenda display:
     (org-agenda-files (list org-directory))
+
+    ;; Capture templates
+    (org-capture-templates
+     '(("t" "Task" entry (file "org/inbox.org")
+        "* PLAN %?\n%U\n:tags:\n")
+       ("p" "Pattern" entry (file "org/patterns.org")
+        "* %^{Pattern} :pattern:\nContext:\nProblem:\nSolution:\nExample:\nRefs:\n%U\n")
+       ("b" "Blog idea" entry (file "org/blog.org")
+        "* %^{Title} :blog:\n#+hugo_section: posts\n#+hugo_tags: [\"pattern\",\"go\",\"ocaml\"]\n#+date: %<%Y-%m-%d>\n\nAngle:\nExample code:\nTakeaway:\n")))
 
     (org-todo-keywords '((sequence "TODO(t)" "|" "CANCEL(c!)" "DONE(d!)")))
 
@@ -1457,7 +1467,7 @@ the actual file unchanged:
 
 ** Go
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package go-mode
     :hook (before-save . gofmt-before-save))
 #+end_src
@@ -1546,4 +1556,11 @@ dirs.
     (dired-listing-switches "-ltgo")
     :hook
     (dired-mode-hook . dired-hide-details-mode))
+#+end_src
+
+* Publishing
+
+#+begin_src emacs-lisp
+  (use-package ox-hugo :after ox)
+  (use-package markdown-mode)
 #+end_src
