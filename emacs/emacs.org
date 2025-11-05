@@ -902,7 +902,12 @@ Configurations for the compilation buffer:
     ;; Purple
     (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
     ;; Red
-    (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+    (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom)
+
+    (set-face-foreground 'git-gutter-fr:modified "purple")
+    (set-face-foreground 'git-gutter-fr:added    "green")
+    (set-face-foreground 'git-gutter-fr:deleted  "red"))
+#+end_src
 
 #+begin_src emacs-lisp
   (use-package magit
