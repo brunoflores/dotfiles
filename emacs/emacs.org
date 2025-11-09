@@ -1156,7 +1156,6 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                           :height (cdr face))))
 
   (use-package org
-    :straight nil ; Built-in
     :hook
     (org-mode . org-mode-setup)
     (org-mode . git-gutter-mode)
@@ -1164,6 +1163,8 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                 ("M-n" . org-move-subtree-down)
                 ("M-p" . org-move-subtree-up))
     :custom
+    (org-directory "~/devel/www-roadmap/org")
+
     (org-ellipsis " …")
     (org-hide-emphasis-markers t)
     ;; Do not let org split the heading when pressing M-RET
@@ -1173,16 +1174,27 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 
     (org-src-tab-acts-natively t)
 
+    ;; Org-cite
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar)
+
     ;; Agenda:
     (org-agenda-start-with-log-mode t)
     ;; Use current time with completing a task
     (org-log-done 'time)
     ;; Put properties in closed drawer
     (org-log-into-drawer t)
-    (org-directory "~/devel/www-roadmap/org")
     (org-deadline-warning-days 2)
     ;; Files to be used for agenda display:
     (org-agenda-files (list org-directory))
+    (org-agenda-custom-commands
+     '(("M" "Monthly view"
+        agenda ""
+        ((org-agenda-span 'month)
+         (org-agenda-start-on-weekday 1)   ;; or 0 for Sunday
+         (org-agenda-show-all-dates t)
+         (org-deadline-warning-days 7)))))
 
     ;; Capture templates
     (org-capture-templates
@@ -1227,59 +1239,121 @@ the actual file unchanged:
 
 ** Org Roam
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package org-roam
     :custom
-    (org-roam-directory (file-truename "~/devel/org-roam-my-files/"))
+    (org-roam-directory (expand-file-name "notes" org-directory))
     (org-roam-completion-everywhere t)
+
     (org-roam-dailies-capture-templates
      '(("d" "default" entry "* %<%I:%M %p>: %?"
         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+
     (org-roam-capture-templates
-     '(("d" "default" plain
+     '(
+       ("d" "default" plain
         "%?"
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
         :unnarrowed t)
+
        ("l" "programming language" plain
         "\n* Characteristics\n\n- Family: %?\n- Inspired by: \n\n* Reference:\n\n"
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
         :unnarrowed t)
+
        ("b" "book notes" plain
         (file "~/devel/dotfiles/org-roam/template-book.org")
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-        :unnarrowed t)))
+        :unnarrowed t)
+
+       ("c" "Chapter note" plain
+        "* What this chapter gives me\n%?\n* Key rules\n* Runnable example(s)\n* Links\n- Topic: [[id:]]\n- Pattern: [[id:]]\n"
+         :if-new (file+head "notes/books/${slug}.org"
+                            "#+title: ${title}\n#+filetags: :book:${book}:\n")
+         :immediate-finish nil
+         :unnarrowed t)
+
+       ("t" "Topic note" plain
+        "* Summary\n%?\n* Cross-links\n- TAPL: [[id:]]\n- PFPL: [[id:]]\n- Pattern: [[id:]]\n- Code: [[file:../../src/ocaml/]]\n"
+        :if-new (file+head "notes/topics/${slug}.org"
+                           "#+title: ${title}\n#+filetags: :topic:\n")
+        :immediate-finish nil)
+
+       ("p" "Pattern note" plain
+        "* Context\n\n* Invariant\n\n* Ops that preserve it\n\n* Laws/tests\n\n* Examples\n- OCaml: [[file:../../src/ocaml/]]\n- Go: [[file:../../src/go/]]\n* References\n"
+        :if-new (file+head "notes/patterns/${slug}.org"
+                           "#+title: Pattern — ${title}\n#+filetags: :pattern:\n")
+        :immediate-finish nil)
+
+       ;; Literature note from a BibTeX citekey (org-roam-bibtex)
+       ("r" "Reference note" plain
+        "* Summary\n%?\n* Key quotes\n* Links\n"
+        :if-new (file+head "notes/refs/${citekey}.org"
+                           "#+title: ${title}\n#+filetags: :ref:\n#+citekey: ${citekey}\n"))
+       ))
+
     :bind (("C-c n i" . org-roam-node-insert)
            ("C-c n f" . org-roam-node-find)
            ("C-c n c" . org-roam-capture)
-           ("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n b" . org-roam-buffer-toggle)
            ("C-c n g" . org-roam-graph)
+
+           ("C-c b b" . citar-insert-citation)
+           ("C-c b r" . citar-insert-reference)
+           ("C-c b o" . citar-open-notes)
+
            ("C-c n a a" . org-roam-alias-add)
            ("C-c n a d" . org-roam-alias-remove)
+
            ("C-c n t a" . org-roam-tag-add)
            ("C-c n t d" . org-roam-tag-remove)
+
            ;; Dailies
            ("C-c n d j" . org-roam-dailies-capture-today)
            ("C-c n d y" . org-roam-dailies-capture-yesterday)
            ("C-c n d t" . org-roam-dailies-capture-tomorrow)
+
            :map org-mode-map
            ("s-i" . completion-at-point))
+
     :config
     ;; Configure what sections are displayed in the Org-roam buffer:
     (setq org-roam-mode-sections
       (list #'org-roam-backlinks-section
             #'org-roam-reflinks-section
             #'org-roam-unlinked-references-section))
+
     ;; If you're using a vertical completion framework, you might want
     ;; a more informative completion interface.
     (setq org-roam-node-display-template
           (concat "${title:*} "
                   (propertize "${tags:30}" 'face 'org-tag)))
+
     ;; Setup Org-roam to run functions on file changes to maintain
     ;; cache consistency:
     (org-roam-db-autosync-mode)
+
     ;; If using org-roam-protocol
     (require 'org-roam-protocol))
 #+end_src
+
+*** Citar
+
+#+begin_src emacs-lisp
+  (use-package citar
+    :custom
+    (citar-bibliography (expand-file-name "bib/refs.bib" org-directory))
+    (org-cite-global-bibliography citar-bibliography))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package org-roam-bibtex
+    :after (org-roam citar)
+    :commands (orb-note-actions)
+    :custom (orb-roam-ref-format 'citekey))
+#+end_src
+
+*** Deft
 
 #+begin_src emacs-lisp :tangle no
   (use-package deft
@@ -1298,6 +1372,8 @@ the actual file unchanged:
     (deft-directory org-roam-directory)
     (deft-auto-save-interval 300))
 #+end_src
+
+*** Flyspell
 
 #+begin_src emacs-lisp :tangle no
   (use-package flyspell)
