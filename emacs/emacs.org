@@ -1207,12 +1207,11 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     :custom
     (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
+  ;; Center text.
   (defun org-mode-visual-fill ()
     (setq visual-fill-column-width 100
           visual-fill-column-center-text t)
     (visual-fill-column-mode 1))
-
-  ;; Center text.
   (use-package visual-fill-column
     :hook
     (org-mode . org-mode-visual-fill)
