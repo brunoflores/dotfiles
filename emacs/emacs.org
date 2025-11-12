@@ -1272,7 +1272,7 @@ the actual file unchanged:
      '(
        ("d" "default" plain
         "%?"
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n")
         :unnarrowed t)
 
        ("l" "programming language" plain
