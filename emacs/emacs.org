@@ -1353,7 +1353,15 @@ the actual file unchanged:
     (org-roam-db-autosync-mode)
 
     ;; If using org-roam-protocol
-    (require 'org-roam-protocol))
+    (require 'org-roam-protocol)
+
+    ;; Org-Roam buffer display as a regular window on the side
+    (add-to-list 'display-buffer-alist
+             '("\\*org-roam\\*"
+               (display-buffer-in-direction)
+               (direction . right)
+               (window-width . 0.33)
+               (window-height . fit-window-to-buffer))))
 #+end_src
 
 *** Citar
