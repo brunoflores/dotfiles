@@ -1155,6 +1155,15 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                           :font "Cantarell" :weight 'regular
                           :height (cdr face))))
 
+
+  ;; Optional: auto-refresh LaTeX previews after saving (keeps notes pretty)
+  ;; 'C-u' to regenerate all fragments
+  (defun my/org-refresh-latex-on-save ()
+    "Refresh LaTeX previews in the current Org buffer after saving."
+    (when (derived-mode-p 'org-mode)
+      (org-latex-preview '(16))))
+  (add-hook 'after-save-hook #'my/org-refresh-latex-on-save)
+
   (use-package org
     :hook
     (org-mode . org-mode-setup)
@@ -1173,6 +1182,16 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     (org-insert-heading-respect-content t)
 
     (org-src-tab-acts-natively t)
+
+    ;; Show LaTeX fragments inline by default
+    (org-startup-with-latex-preview t)
+    ;; Use MathJax for HTML exports
+    (org-html-with-latex 'mathjax)
+    ;; MathJax v3 (fast + compatible)
+    (org-html-mathjax-options
+     '((path "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")))
+    ;; Better in-buffer preview engine
+    (org-preview-latex-default-process 'dvisvgm)
 
     ;; Org-cite
     (org-cite-insert-processor 'citar)
