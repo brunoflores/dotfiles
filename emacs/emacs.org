@@ -1361,7 +1361,7 @@ the actual file unchanged:
 #+begin_src emacs-lisp
   (use-package citar
     :custom
-    (citar-bibliography (expand-file-name "bib/refs.bib" org-directory))
+    (citar-bibliography '("~/devel/www-roadmap/bib/refs.bib"))
     (org-cite-global-bibliography citar-bibliography))
 #+end_src
 
