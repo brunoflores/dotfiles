@@ -1193,11 +1193,6 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     ;; Better in-buffer preview engine
     (org-preview-latex-default-process 'dvisvgm)
 
-    ;; Org-cite
-    (org-cite-insert-processor 'citar)
-    (org-cite-follow-processor 'citar)
-    (org-cite-activate-processor 'citar)
-
     ;; Agenda:
     (org-agenda-start-with-log-mode t)
     ;; Use current time with completing a task
@@ -1273,6 +1268,14 @@ the actual file unchanged:
        ("d" "default" plain
         "%?"
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n")
+        :unnarrowed t)
+
+       ("n" "literature note" plain
+        "%?"
+        :target
+        (file+head
+         "%(expand-file-name (or citar-org-roam-subdir \"\") org-roam-directory)/${citar-citekey}.org"
+         "#+title: ${note-title}\n#+created: %U\n\n")
         :unnarrowed t)
 
        ("l" "programming language" plain
@@ -1370,7 +1373,12 @@ the actual file unchanged:
   (use-package citar
     :custom
     (citar-bibliography '("~/devel/www-roadmap/bib/refs.bib"))
-    (org-cite-global-bibliography citar-bibliography))
+
+    ;; Org-cite
+    (org-cite-global-bibliography citar-bibliography)
+    (org-cite-insert-processor 'citar)
+    (org-cite-follow-processor 'citar)
+    (org-cite-activate-processor 'citar))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1378,6 +1386,15 @@ the actual file unchanged:
     :after (org-roam citar)
     :commands (orb-note-actions)
     :custom (orb-roam-ref-format 'citekey))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package citar-org-roam
+    :after (citar org-roam)
+    :custom
+    (citar-org-roam-capture-template-key "n")
+    :config
+    (citar-org-roam-mode))
 #+end_src
 
 *** Deft
