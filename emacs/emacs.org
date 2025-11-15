@@ -1372,7 +1372,9 @@ the actual file unchanged:
 #+begin_src emacs-lisp
   (use-package citar
     :custom
+    ;; Global bibliography
     (citar-bibliography '("~/devel/www-roadmap/bib/refs.bib"))
+    (citar-org-roam-subdir "lit")
 
     ;; Org-cite
     (org-cite-global-bibliography citar-bibliography)
@@ -1382,19 +1384,20 @@ the actual file unchanged:
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package org-roam-bibtex
-    :after (org-roam citar)
-    :commands (orb-note-actions)
-    :custom (orb-roam-ref-format 'citekey))
-#+end_src
-
-#+begin_src emacs-lisp
   (use-package citar-org-roam
-    :after (citar org-roam)
+    :after (org-roam citar)
     :custom
     (citar-org-roam-capture-template-key "n")
     :config
     (citar-org-roam-mode))
+#+end_src
+
+I prefer ~citar-org-roam~:
+#+begin_src emacs-lisp :tangle no
+  (use-package org-roam-bibtex
+    :after (org-roam citar)
+    :commands (orb-note-actions)
+    :custom (orb-roam-ref-format 'citekey))
 #+end_src
 
 *** Deft
