@@ -1256,7 +1256,7 @@ the actual file unchanged:
 #+begin_src emacs-lisp
   (use-package org-roam
     :custom
-    (org-roam-directory (expand-file-name "notes" org-directory))
+    (org-roam-directory org-directory)
     (org-roam-completion-everywhere t)
 
     (org-roam-dailies-capture-templates
