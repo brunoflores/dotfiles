@@ -1254,6 +1254,12 @@ the actual file unchanged:
 ** Org Roam
 
 #+begin_src emacs-lisp
+  ;; Helper: pull info we inject (citekey & ref) inside templates
+  (defun my/ror-citekey ()
+    (plist-get org-roam-capture--info :citekey))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package org-roam
     :custom
     (org-roam-directory org-directory)
@@ -1264,54 +1270,28 @@ the actual file unchanged:
         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
 
     (org-roam-capture-templates
-     '(
-       ("d" "default" plain
+     `(
+       ("d" "Default" plain
         "%?"
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n")
+        :target (file+head
+                 "concepts/%<%Y%m%d%H%M%S>-${slug}.org"
+                 "#+title: ${title}\n#+filetags: :concept:\n#+created: %U\n")
         :unnarrowed t)
 
-       ("n" "literature note" plain
+       ("b" "Book note" plain
         "%?"
-        :target
-        (file+head
-         "%(expand-file-name (or citar-org-roam-subdir \"\") org-roam-directory)/${citar-citekey}.org"
-         "#+title: ${note-title}\n#+created: %U\n\n")
-        :unnarrowed t)
-
-       ("l" "programming language" plain
-        "\n* Characteristics\n\n- Family: %?\n- Inspired by: \n\n* Reference:\n\n"
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-        :unnarrowed t)
-
-       ("b" "book notes" plain
-        (file "~/devel/dotfiles/org-roam/template-book.org")
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+        :target (file+head
+                 "sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
+                 "#+title: ${title}\n#+filetags: :reading:book:\n#+created: %U\n")
         :unnarrowed t)
 
        ("c" "Chapter note" plain
-        "* What this chapter gives me\n%?\n* Key rules\n* Runnable example(s)\n* Links\n- Topic: [[id:]]\n- Pattern: [[id:]]\n"
-         :if-new (file+head "notes/books/${slug}.org"
-                            "#+title: ${title}\n#+filetags: :book:${book}:\n")
-         :immediate-finish nil
-         :unnarrowed t)
-
-       ("t" "Topic note" plain
-        "* Summary\n%?\n* Cross-links\n- TAPL: [[id:]]\n- PFPL: [[id:]]\n- Pattern: [[id:]]\n- Code: [[file:../../src/ocaml/]]\n"
-        :if-new (file+head "notes/topics/${slug}.org"
-                           "#+title: ${title}\n#+filetags: :topic:\n")
-        :immediate-finish nil)
-
-       ("p" "Pattern note" plain
-        "* Context\n\n* Invariant\n\n* Ops that preserve it\n\n* Laws/tests\n\n* Examples\n- OCaml: [[file:../../src/ocaml/]]\n- Go: [[file:../../src/go/]]\n* References\n"
-        :if-new (file+head "notes/patterns/${slug}.org"
-                           "#+title: Pattern — ${title}\n#+filetags: :pattern:\n")
-        :immediate-finish nil)
-
-       ;; Literature note from a BibTeX citekey (org-roam-bibtex)
-       ("r" "Reference note" plain
-        "* Summary\n%?\n* Key quotes\n* Links\n"
-        :if-new (file+head "notes/refs/${citekey}.org"
-                           "#+title: ${title}\n#+filetags: :ref:\n#+citekey: ${citekey}\n"))
+        "%?"
+        :target (file+head
+                 ;; filename includes citekey + a chapter slug
+                 "sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
+                 "#+title: ${title}\n#+filetags: :reading:chapter:\n#+created: %U\n")
+        :unnarrowed t)
        ))
 
     :bind (("C-c n i" . org-roam-node-insert)
@@ -1386,10 +1366,47 @@ the actual file unchanged:
 #+begin_src emacs-lisp
   (use-package citar-org-roam
     :after (org-roam citar)
-    :custom
-    (citar-org-roam-capture-template-key "n")
     :config
     (citar-org-roam-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+  (defun my/citar-roam--pick-citekey ()
+    "Pick one citekey via citar and return it as a string."
+    (citar-select-ref))
+
+  (defun my/citar-roam-capture-book ()
+    "Create a *book-level* Org-roam note for a chosen reference."
+    (interactive)
+    (let* ((ck (my/citar-roam--pick-citekey))
+           (ref (format "@%s" ck))
+           ;; Nice title from the bib entry via citar's formatter:
+           (title (citar-format--entry "${author editor} (${year}). ${title}" (citar-get-entry ck))))
+      (org-roam-capture-
+       :templates org-roam-capture-templates
+       :node (org-roam-node-create :title title)
+       :props '(:finalize find-file)
+       :info (list :citekey ck)
+       :keys "b")
+      (org-roam-ref-add ref)))
+
+  (defun my/citar-roam-capture-chapter ()
+    "Create a *chapter-level* Org-roam note (separate file) for a chosen reference."
+    (interactive)
+    (let* ((ck (my/citar-roam--pick-citekey))
+           (ref (format "@%s" ck))
+           (book-title (citar-format--entry
+                        "${author editor} (${year}). ${title}"
+                        (citar-get-entry ck)))
+           (chap-label (read-string "Chapter: "))
+           (node-title (format "%s - %s" book-title chap-label)))
+      (org-roam-capture-
+       :templates org-roam-capture-templates
+       :node (org-roam-node-create :title node-title)
+       :props '(:finalize find-file)
+       :info (list :citekey ck)
+       :keys "c")
+      (org-roam-ref-add ref)))
 #+end_src
 
 I prefer ~citar-org-roam~:
