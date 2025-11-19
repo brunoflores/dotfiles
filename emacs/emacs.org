@@ -1137,6 +1137,20 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 ** Org Mode
 
 #+begin_src emacs-lisp
+  ;; 1. Define a face (optional but nice)
+  (defface my/org-todo-yellow-bold
+    '((t :weight bold :foreground "yellow"))
+    "Face for highlighted TODO in org buffers.")
+
+  ;; 2. Define a setup function
+  (defun my/org-extra-font-lock ()
+    (font-lock-add-keywords
+     nil ;; nil = current major mode
+     '(("\\bTODO\\b"
+        0 'my/org-todo-yellow-bold t))))
+#+end_src
+
+#+begin_src emacs-lisp
   (defun org-mode-setup ()
     (org-indent-mode)
     (diminish 'org-indent-mode))
@@ -1168,6 +1182,7 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     :hook
     (org-mode . org-mode-setup)
     (org-mode . git-gutter-mode)
+    (org-mode . my/org-extra-font-lock)
     :bind (:map org-mode-map
                 ("M-n" . org-move-subtree-down)
                 ("M-p" . org-move-subtree-up))
