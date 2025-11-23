@@ -280,19 +280,86 @@ From =recentf-mode=:
 
 * Keyboard shortcuts
 
+#+begin_src emacs-lisp
+  (use-package general
+    :after evil
+    :config
+    ;; SPC in normal state always opens hub transient
+    ;; This works even in dired-mode
+    (general-define-key
+     :states 'normal
+     :keymaps 'override
+     "SPC" #'my/hub-transient-dispatch))
+#+end_src
+
 #+begin_src emacs-lisp :tangle no
   (use-package general
     :config
     (general-create-definer my/leader
-                            :states '(normal visual emacs)
+  			  :states '(normal visual emacs)
                             :keymaps 'override
-                            :prefix "SPC"
-                            :global-prefix "C-SPC"))
+  			  :prefix "SPC"
+  			  :global-prefix "C-SPC"))
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package transient
     :demand t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (defun my/hub-transient-layout ()
+    "Return the list of transient groups (columns) for the hub.
+  This is computed dynamically based on `major-mode`."
+    (let* (;; Always-present global columns
+  	 (global-groups
+  	  '([["Files"
+                ("f" "Files"   my/files-transient)
+                ("b" "Buffers" my/buffers-transient)]
+               ["Projects"
+                ("p" "Project" my/project-transient)]
+  	     ["Git"
+                ("g" "Git" my/git-transient)]]))
+
+           ;; Mode-specific columns
+           (mode-groups
+            (cond
+  	   ;; Dired
+  	   ((derived-mode-p 'dired-mode)
+  	    '([["Dired"
+  		("d" "Dune"   my/ocaml-dune-transient)]]))
+
+             ;; Org
+  	   ((derived-mode-p 'org-mode)
+  	    '([["Org"
+  		("o" "Org menu" my/org-transient)
+  		("r" "Roam menu" my/roam-transient)
+  		("a" "Agenda"   org-agenda)]]))
+
+             ;; OCaml / dune (tweak modes as needed)
+  	   ((or (derived-mode-p 'tuareg-mode)
+  		(derived-mode-p 'ocaml-mode))
+  	    '([["OCaml / Dune"
+  		("d" "Dune menu" my/ocaml-dune-transient)]]))
+
+  	   ;; Default: no extra columns
+  	   (t nil))))
+
+      ;; Concatenate global and mode-specific groups
+      (append global-groups mode-groups)))
+
+  (defun my/hub-transient-define ()
+    "Define (or redefine) `my/hub-transient` using the current layout."
+    (eval
+     `(transient-define-prefix my/hub-transient ()
+        "Main hub menu."
+        ,@(my/hub-transient-layout))))
+
+  (defun my/hub-transient-dispatch ()
+    "Regenerate and show the hub transient for the current major mode."
+    (interactive)
+    (my/hub-transient-define)
+    (my/hub-transient))
 #+end_src
 
 ** Files and buffers transients
@@ -434,28 +501,6 @@ From =recentf-mode=:
       ("r" "Refresh DB" org-roam-db-sync)]])
 #+end_src
 
-** Global hub transient
-#+begin_src emacs-lisp
-  (transient-define-prefix my/hub-transient ()
-    "Main command hub."
-    [["Files / Buffers"
-      ("f" "Files"   my/files-transient)
-      ("b" "Buffers" my/buffers-transient)]
-     ["Projects"
-      ("p" "Project" my/project-transient)]
-     ["Org"
-      ("o" "Org"     my/org-transient)]
-     ["Roam"
-      ("r" "Roam"    my/roam-transient)]
-     ["Dune"
-      ("d" "Dune"    my/ocaml-dune-transient)]
-     ["Git"
-      ("g" "Git"    my/git-transient)]
-     ["Toggles"
-      ("t" "Toggles" my/toggles-transient)]
-     ])
-#+end_src
-
 ** Other
 #+begin_src emacs-lisp :tangle no
   (transient-define-prefix major-mode-transient ()
@@ -511,7 +556,6 @@ Global modes that do not come with Emacs.
   	      :map evil-visual-state-map
   	      ("C-w" . kill-region)
   	      :map evil-normal-state-map
-  	      ("SPC" . #'my/hub-transient)
   	      ("C-w" . kill-region)
   	      ("/" . consult-line))
     :config
