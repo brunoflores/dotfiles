@@ -356,7 +356,18 @@ From =recentf-mode=:
     "Project commands."
     [["Switch / Find"
       ("p" "Switch project" project-switch-project)
-      ("f" "Find file"      project-find-file)
+      ("fm" "find others"
+       (lambda ()
+         (interactive)
+         (let* ((project-root (projectile-acquire-root))
+  	      (initial (concat (file-name-base buffer-file-name) "\\."))
+  	      (file (projectile-completing-read "Find file: "
+  						(projectile-project-files project-root)
+  						:initial-input initial)))
+  	 (when file
+  	   (find-file (expand-file-name file project-root))
+  	   (run-hooks 'projectile-find-file-hook)))))
+      ("ff" "Find file"      project-find-file)
       ("b" "Switch buffer"  consult-project-buffer)] ;; or project-switch-to-buffer
      ["Search"
       ("s" "Search (rg/ag)" consult-ripgrep)
@@ -369,6 +380,39 @@ From =recentf-mode=:
 
   (my/leader
     "p" '(my/project-transient :which-key "project"))
+#+end_src
+
+** Git transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/git-transient ()
+    "Git transient"
+    ["Hunks"
+     ("j" "next hunk" git-gutter:next-hunk :transient t)
+     ("k" "prev hunk" git-gutter:previous-hunk :transient t)]
+    ["Actions"
+     ("g" "magit" magit)])
+
+  (my/leader
+    "g" '(my/git-transient :which-key "git"))
+#+end_src
+
+** Toggles transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/toggles-transient ()
+    "Toggles transient"
+    ["Toggles"
+     ("t" "treemacs" treemacs)
+     ("s" "LSP symbols"
+      (lambda ()
+        (interactive)
+        (let* ((buffer-name "*LSP Symbols List*")
+              (exists (get-buffer buffer-name)))
+          (if exists (kill-buffer buffer-name)
+            (lsp-treemacs-symbols)))) :transient t)
+     ("l" "line numbers" display-line-numbers-mode :transient t)])
+
+  (my/leader
+    "t" '(my/toggles-transient :which-key "toggles"))
 #+end_src
 
 ** Org transient
@@ -441,76 +485,6 @@ From =recentf-mode=:
     "Major Mode transient"
     ["Compilation"
      ("d" "disaster" disaster :if-mode c-mode)])
-
-  (transient-define-prefix git-transient ()
-    "Git transient"
-    ["Hunks"
-     ("j" "next hunk" git-gutter:next-hunk :transient t)
-     ("k" "prev hunk" git-gutter:previous-hunk :transient t)]
-    ["Actions"
-     ("g" "magit" magit)])
-
-  (transient-define-prefix toggles-transient ()
-    "Toggles transient"
-    ["Toggles"
-     ("t" "treemacs" treemacs)
-     ("s" "LSP symbols"
-      (lambda ()
-        (interactive)
-        (let* ((buffer-name "*LSP Symbols List*")
-              (exists (get-buffer buffer-name)))
-          (if exists (kill-buffer buffer-name)
-            (lsp-treemacs-symbols)))) :transient t)
-     ("l" "line numbers" display-line-numbers-mode :transient t)])
-
-  (transient-define-prefix project-transient ()
-    "Project transient"
-    [("p" "switch" projectile-switch-project)
-     ("b" "buffers" projectile-switch-to-buffer)
-     ("fr" "find recent" projectile-recentf)
-     ("fo" "find other" projectile-find-other-file)
-     ("fm" "find others"
-      (lambda ()
-        (interactive)
-        (let* ((project-root (projectile-acquire-root))
-               (initial (concat (file-name-base buffer-file-name) "\\."))
-               (file (projectile-completing-read "Find file: "
-                                                 (projectile-project-files project-root)
-                                                 :initial-input initial)))
-          (when file
-            (find-file (expand-file-name file project-root))
-            (run-hooks 'projectile-find-file-hook)))))
-     ("ff" "file" projectile-find-file)])
-
-  (transient-define-prefix entry-transient ()
-    "Entry"
-    [["File"
-      ("s" "save" save-buffer)
-      ("f" "find" find-file)
-      "Buffers"
-      ("b" "consult-buffer" consult-buffer)
-      "Git"
-      ("g" "git" git-transient)
-      "Other"
-      ("SPC" "command" execute-extended-command)]
-     ["Dired"
-      ("j" "jump" dired-jump)
-      "Search"
-      ("l" "consult line" consult-line)
-      ("L" "consult line multi" consult-line-multi)
-      "Projects"
-      ("p" "" project-transient)
-      "Toggles"
-      ("t" "" toggles-transient)]])
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-  (defvar-keymap space-map
-    "SPC" #'execute-extended-command
-    "s" #'save-buffer
-    "f" #'find-file
-    "g" #'git-transient
-    "b" #'consult-buffer)
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -520,33 +494,6 @@ From =recentf-mode=:
      (key-chord-define-global "jk" 'evil-normal-state)
      (key-chord-define-global "df" 'entry-transient)
      (key-chord-mode t))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-  (global-set-key (kbd "C-v") 'scroll-down-command)
-  (global-set-key (kbd "M-v") 'scroll-up-command)
-#+end_src
-
-The following is now replaced by =ace-window=:
-#+begin_src emacs-lisp :tangle no
-  ;; Shortcut to switch between two buffers.
-  (global-set-key (kbd "M-o")  'mode-line-other-buffer)
-#+end_src
-
-Allow movement between windows using SHIFT plus arrow:
-#+begin_src emacs-lisp :tangle no
-  (windmove-default-keybindings)
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
- ;; (defvar default-map (make-sparse-keymap)
- ;;   "Base keymap for all leader key commands.")
-
-  ;; (defvar-keymap space-map
-  ;;     :repeat t
-  ;;     "n" #'hl-todo-next
-  ;;     "p" #'hl-todo-previous
-  ;;     "o" #'hl-todo-occur)
 #+end_src
 
 
