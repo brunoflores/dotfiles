@@ -151,6 +151,18 @@ Together with use-package, =:diminish= can hide minor modes from the mode line.
     :demand t)
 #+end_src
 
+* Help
+#+begin_src emacs-lisp
+  (use-package helpful
+    :ensure t
+    :bind
+    ;; Replace default help commands
+    ([remap describe-function] . helpful-callable)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-key]      . helpful-key))
+#+end_src
+
 * Built-in global modes
 
 Global modes that come installed with Emacs:
