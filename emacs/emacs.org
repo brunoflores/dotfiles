@@ -904,6 +904,11 @@ Configurations for the compilation buffer:
 #+end_src
 
 * Programming Environments
+** Publishing
+#+begin_src emacs-lisp
+  (use-package simple-httpd
+    :ensure t)
+#+end_src
 ** Git
 
 #+begin_src emacs-lisp :tangle no
