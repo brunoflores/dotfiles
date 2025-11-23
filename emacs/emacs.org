@@ -490,6 +490,7 @@ From =recentf-mode=:
   (transient-define-prefix my/roam-transient ()
     "Org-roam commands."
     [["Find / Insert"
+      ("c" "Capture node"   org-roam-capture)
       ("f" "Find node"   org-roam-node-find)
       ("i" "Insert node" org-roam-node-insert)]
      ["Dailies"
