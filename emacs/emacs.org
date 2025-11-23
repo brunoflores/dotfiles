@@ -1184,12 +1184,25 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
      nil ;; nil = current major mode
      '(("\\bTODO\\b"
         0 'my/org-todo-yellow-bold t))))
+
+  (defun my/org-latex-scale ()
+    ;; Start from current options and adjust :scale
+    (setq-local org-format-latex-options
+                (plist-put org-format-latex-options :scale 1.2))
+    ;; If you render a lot, you can reduce dpi; 200 is crisp.
+    (setq-local org-format-latex-options
+                (plist-put org-format-latex-options :dpi 200)))
 #+end_src
 
 #+begin_src emacs-lisp
   (defun org-mode-setup ()
     (org-indent-mode)
-    (diminish 'org-indent-mode))
+    (diminish 'org-indent-mode)
+
+    ;; Bind under leader *in org buffers only*
+    (general-def 'normal org-mode-map
+      "SPC o" 'my/org-transient)
+    )
 
   (defun org-mode-font-setup ()
     ;; Set faces for heading levels
@@ -1205,7 +1218,6 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                           :font "Cantarell" :weight 'regular
                           :height (cdr face))))
 
-
   ;; Optional: auto-refresh LaTeX previews after saving (keeps notes pretty)
   ;; 'C-u' to regenerate all fragments
   (defun my/org-refresh-latex-on-save ()
@@ -1219,6 +1231,7 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     (org-mode . org-mode-setup)
     (org-mode . git-gutter-mode)
     (org-mode . my/org-extra-font-lock)
+    (org-mode . my/org-latex-scale)
     :bind (:map org-mode-map
                 ("M-n" . org-move-subtree-down)
                 ("M-p" . org-move-subtree-up))
@@ -1275,7 +1288,21 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     :config
     (org-mode-font-setup)
     ;; Remove the default underline style from elipsis.
-    (set-face-underline 'org-ellipsis nil))
+    (set-face-underline 'org-ellipsis nil)
+
+    (transient-define-prefix my/org-transient ()
+      "Org actions."
+      [["Capture / TODO"
+        ("c" "Capture" org-capture)
+        ("t" "Todo" org-todo)]
+       ["Structure"
+        ("m" "Meta-return" org-meta-return)
+        ("h" "Promote" org-do-promote)
+        ("l" "Demote" org-do-demote)]
+       ["Navigate"
+        ("a" "Agenda" org-agenda)
+        ("g" "Goto heading" consult-org-heading)]])
+    )
 
   ;; Replace stars with utf-8 chars.
   (use-package org-bullets
