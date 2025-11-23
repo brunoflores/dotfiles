@@ -281,11 +281,38 @@ From =recentf-mode=:
 * Keyboard shortcuts
 
 #+begin_src emacs-lisp
+  (use-package general
+    :config
+    (general-create-definer my/leader
+                            :states '(normal visual emacs)
+                            :keymaps 'override
+                            :prefix "SPC"
+                            :global-prefix "C-SPC"))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package transient
     :demand t)
 #+end_src
 
 #+begin_src emacs-lisp
+  (transient-define-prefix my/files-transient ()
+    "File-related commands."
+    [["Files"
+      ("f" "Find file" find-file)
+      ("r" "Recent" consult-recent-file)
+      ("d" "Dired" dired)]
+     ["Buffers"
+      ("b" "Switch buffer" consult-buffer)
+      ("k" "Kill buffer" kill-current-buffer)]])
+#+end_src
+
+#+begin_src emacs-lisp
+  (my/leader
+    "f" '(my/files-transient :which-key "files menu"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
   (transient-define-prefix major-mode-transient ()
     "Major Mode transient"
     ["Compilation"
