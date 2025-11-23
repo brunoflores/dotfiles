@@ -1136,7 +1136,9 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-  (use-package tuareg)
+  (use-package tuareg
+    :custom
+    (tuareg-support-metaocaml t))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
