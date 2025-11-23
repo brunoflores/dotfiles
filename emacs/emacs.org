@@ -295,23 +295,127 @@ From =recentf-mode=:
     :demand t)
 #+end_src
 
+** Files and buffers transients
 #+begin_src emacs-lisp
   (transient-define-prefix my/files-transient ()
     "File-related commands."
-    [["Files"
+    [["Open"
       ("f" "Find file" find-file)
-      ("r" "Recent" consult-recent-file)
-      ("d" "Dired" dired)]
-     ["Buffers"
-      ("b" "Switch buffer" consult-buffer)
-      ("k" "Kill buffer" kill-current-buffer)]])
-#+end_src
+      ("r" "Recent file" consult-recent-file)]
+     ["Dired"
+      ("d" "Dired here" dired)
+      ("D" "Dired other" dired-other-window)]])
 
-#+begin_src emacs-lisp
+  (transient-define-prefix my/buffers-transient ()
+    "Buffer-related commands."
+    [["Switch"
+      ("b" "Switch buffer" consult-buffer)]
+     ["Manage"
+      ("k" "Kill buffer" kill-current-buffer)
+      ("K" "Kill other buffers" kill-buffer)]])
+
   (my/leader
-    "f" '(my/files-transient :which-key "files menu"))
+    "f" '(my/files-transient   :which-key "files")
+    "b" '(my/buffers-transient :which-key "buffers"))
 #+end_src
 
+** Project transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/project-transient ()
+    "Project commands."
+    [["Switch / Find"
+      ("p" "Switch project" project-switch-project)
+      ("f" "Find file"      project-find-file)
+      ("b" "Switch buffer"  project-switch-to-buffer)]
+     ["Search"
+      ("s" "Search (rg/ag)" consult-ripgrep)
+      ("g" "Grep"           project-find-regexp)]
+     ["Build / Run"
+      ;; adapt these to TAPL/OCaml projects later
+      ("c" "Compile"        compile)
+      ("t" "Test"           recompile)]])
+
+  (my/leader
+    "p" '(my/project-transient :which-key "project"))
+#+end_src
+
+** Org transient
+#+begin_src emacs-lisp
+  (use-package org
+    :after org ;; because we mention "org" functions
+    :hook (org-mode . my/org-mode-setup)
+    :config
+    (transient-define-prefix my/org-transient ()
+      "Org actions."
+      [["Capture / TODO"
+        ("c" "Capture" org-capture)
+        ("t" "Todo"    org-todo)
+        ("s" "Schedule" org-schedule)]
+       ["Structure"
+        ("m" "Meta-return" org-meta-return)
+        ("h" "Promote"     org-do-promote)
+        ("l" "Demote"      org-do-demote)
+        ("u" "Move up"     org-move-subtree-up)
+        ("d" "Move down"   org-move-subtree-down)]
+       ["Navigate"
+        ("a" "Agenda" org-agenda)
+        ("g" "Goto heading" consult-org-heading)]]))
+
+  (defun my/org-mode-setup ()
+    ;; in org-mode, under leader, "o" calls this transient.
+    (my/leader
+      :keymaps 'org-mode-map
+      "o" '(my/org-transient :which-key "org menu")))
+#+end_src
+
+** Org-roam transient
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :after org-roam
+    :hook (org-roam-mode . my/org-roam-mode-setup)
+    :config
+    (transient-define-prefix my/roam-transient ()
+      "Org-roam commands."
+      [["Find / Insert"
+        ("f" "Find node"   org-roam-node-find)
+        ("i" "Insert node" org-roam-node-insert)]
+       ["Dailies"
+        ("t" "Today"   org-roam-dailies-goto-today)
+        ("y" "Yesterday" org-roam-dailies-goto-yesterday)
+        ("d" "Date"    org-roam-dailies-goto-date)]
+       ["Graph / Utils"
+        ("g" "Graph" org-roam-graph)
+        ("r" "Refresh DB" org-roam-db-sync)]]))
+
+  (defun my/org-roam-mode-setup ()
+    ;; Optional: local leader in Org-roam buffers (or org-mode-map if you prefer)
+    (my/leader
+      :keymaps 'org-roam-mode-map
+      "r" '(my/roam-transient :which-key "roam menu")))
+#+end_src
+
+** Global hub transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/hub-transient ()
+    "Main command hub."
+    [["Files / Buffers"
+      ("f" "Files"   my/files-transient)
+      ("b" "Buffers" my/buffers-transient)]
+     ["Projects"
+      ("p" "Project" my/project-transient)]
+     ["Org"
+      ("o" "Org"     my/org-transient)]
+     ["Roam"
+      ("r" "Roam"    my/roam-transient)]
+     ;; ["Misc"
+     ;;  ("t" "TAPL / Tools" my/tools-transient)]
+     ])
+
+  (my/leader
+    "SPC" '(my/hub-transient :which-key "hub"))
+#+end_src
+
+** Other
 #+begin_src emacs-lisp :tangle no
   (transient-define-prefix major-mode-transient ()
     "Major Mode transient"
@@ -424,6 +528,7 @@ Allow movement between windows using SHIFT plus arrow:
   ;;     "p" #'hl-todo-previous
   ;;     "o" #'hl-todo-occur)
 #+end_src
+
 
 * Global modes
 
@@ -1198,10 +1303,6 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
   (defun org-mode-setup ()
     (org-indent-mode)
     (diminish 'org-indent-mode)
-
-    ;; Bind under leader *in org buffers only*
-    (general-def 'normal org-mode-map
-      "SPC o" 'my/org-transient)
     )
 
   (defun org-mode-font-setup ()
@@ -1288,21 +1389,7 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     :config
     (org-mode-font-setup)
     ;; Remove the default underline style from elipsis.
-    (set-face-underline 'org-ellipsis nil)
-
-    (transient-define-prefix my/org-transient ()
-      "Org actions."
-      [["Capture / TODO"
-        ("c" "Capture" org-capture)
-        ("t" "Todo" org-todo)]
-       ["Structure"
-        ("m" "Meta-return" org-meta-return)
-        ("h" "Promote" org-do-promote)
-        ("l" "Demote" org-do-demote)]
-       ["Navigate"
-        ("a" "Agenda" org-agenda)
-        ("g" "Goto heading" consult-org-heading)]])
-    )
+    (set-face-underline 'org-ellipsis nil))
 
   ;; Replace stars with utf-8 chars.
   (use-package org-bullets
