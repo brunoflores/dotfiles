@@ -1145,6 +1145,10 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
+  (add-hook 'before-save-hook 'ocamlformat-before-save)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
   (use-package utop
     :config
     ;; Use the opam installed utop
