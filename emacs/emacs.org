@@ -280,7 +280,7 @@ From =recentf-mode=:
 
 * Keyboard shortcuts
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package general
     :config
     (general-create-definer my/leader
@@ -315,13 +315,9 @@ From =recentf-mode=:
      ["Manage"
       ("k" "Kill buffer" kill-current-buffer)
       ("K" "Kill other buffers" kill-buffer)]])
-
-  (my/leader
-    "f" '(my/files-transient   :which-key "files")
-    "b" '(my/buffers-transient :which-key "buffers"))
 #+end_src
 
-** OCaml
+** OCaml transient
 #+begin_src emacs-lisp
   (defun my/dune--compile (cmd)
     "Run dune CMD with `compile' in the current `default-directory'."
@@ -345,9 +341,6 @@ From =recentf-mode=:
     "OCaml/Dune commands"
     [["Init"
       ("n" "Init proj here" my/dune-init-project)]])
-
-  (my/leader
-    "d" '(my/ocaml-dune-transient :which-key "ocaml/dune"))
 #+end_src
 
 ** Project transient
@@ -377,9 +370,6 @@ From =recentf-mode=:
       ;; adapt these to TAPL/OCaml projects later
       ("c" "Compile"        compile)
       ("t" "Test"           recompile)]])
-
-  (my/leader
-    "p" '(my/project-transient :which-key "project"))
 #+end_src
 
 ** Git transient
@@ -391,9 +381,6 @@ From =recentf-mode=:
      ("k" "prev hunk" git-gutter:previous-hunk :transient t)]
     ["Actions"
      ("g" "magit" magit)])
-
-  (my/leader
-    "g" '(my/git-transient :which-key "git"))
 #+end_src
 
 ** Toggles transient
@@ -410,9 +397,6 @@ From =recentf-mode=:
           (if exists (kill-buffer buffer-name)
             (lsp-treemacs-symbols)))) :transient t)
      ("l" "line numbers" display-line-numbers-mode :transient t)])
-
-  (my/leader
-    "t" '(my/toggles-transient :which-key "toggles"))
 #+end_src
 
 ** Org transient
@@ -432,10 +416,6 @@ From =recentf-mode=:
      ["Navigate"
       ("a" "Agenda" org-agenda)
       ("g" "Goto heading" consult-org-heading)]])
-
-  (my/leader
-    :keymaps 'org-mode-map
-    "o" '(my/org-transient :which-key "org"))
 #+end_src
 
 ** Org-roam transient
@@ -452,10 +432,6 @@ From =recentf-mode=:
      ["Graph / Utils"
       ("g" "Graph" org-roam-graph)
       ("r" "Refresh DB" org-roam-db-sync)]])
-
-  (my/leader
-    :keymaps 'org-mode-map
-    "r" '(my/roam-transient :which-key "roam"))
 #+end_src
 
 ** Global hub transient
@@ -471,12 +447,13 @@ From =recentf-mode=:
       ("o" "Org"     my/org-transient)]
      ["Roam"
       ("r" "Roam"    my/roam-transient)]
-     ;; ["Misc"
-     ;;  ("t" "TAPL / Tools" my/tools-transient)]
+     ["Dune"
+      ("d" "Dune"    my/ocaml-dune-transient)]
+     ["Git"
+      ("g" "Git"    my/git-transient)]
+     ["Toggles"
+      ("t" "Toggles" my/toggles-transient)]
      ])
-
-  (my/leader
-    "SPC" '(my/hub-transient :which-key "hub"))
 #+end_src
 
 ** Other
@@ -512,15 +489,15 @@ Global modes that do not come with Emacs.
 #+begin_src emacs-lisp
   (defun mode-line-render ()
     (let ((face '((normal . "gray20")
-                  (visual . "SteelBlue")
-                  (replace . "Magenta")
-                  (operator . "Magenta")
-                  (motion . "Magenta")
-                  (emacs . "Magenta")
-                  (insert . "SeaGreen")))
-          (state (symbol-value 'evil-state)))
+  		(visual . "SteelBlue")
+  		(replace . "Magenta")
+  		(operator . "Magenta")
+  		(motion . "Magenta")
+  		(emacs . "Magenta")
+  		(insert . "SeaGreen")))
+  	(state (symbol-value 'evil-state)))
       (set-face-attribute 'mode-line nil
-                          :background (cdr (assoc state face)))))
+  			:background (cdr (assoc state face)))))
 
   (use-package evil
     :demand t
@@ -528,14 +505,15 @@ Global modes that do not come with Emacs.
     (evil-want-keybinding nil) ; For evil-collection
     (evil-mode-line-format nil) ; Hide. Personal preference
     :bind (:map evil-motion-state-map
-           ("C-y" . consult-yank-from-kill-ring)
-           :map evil-insert-state-map
-           ("C-y" . consult-yank-from-kill-ring)
-           :map evil-visual-state-map
-           ("C-w" . kill-region)
-           :map evil-normal-state-map
-           ("C-w" . kill-region)
-           ("/" . consult-line))
+  	      ("C-y" . consult-yank-from-kill-ring)
+  	      :map evil-insert-state-map
+  	      ("C-y" . consult-yank-from-kill-ring)
+  	      :map evil-visual-state-map
+  	      ("C-w" . kill-region)
+  	      :map evil-normal-state-map
+  	      ("SPC" . #'my/hub-transient)
+  	      ("C-w" . kill-region)
+  	      ("/" . consult-line))
     :config
     (evil-mode t)
 
