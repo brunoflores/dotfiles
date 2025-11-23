@@ -301,6 +301,7 @@ From =recentf-mode=:
     "File-related commands."
     [["Open"
       ("f" "Find file" find-file)
+      ("F" "Find file other" find-file-other-window)
       ("r" "Recent file" consult-recent-file)]
      ["Dired"
       ("d" "Dired here" dired)
@@ -309,7 +310,8 @@ From =recentf-mode=:
   (transient-define-prefix my/buffers-transient ()
     "Buffer-related commands."
     [["Switch"
-      ("b" "Switch buffer" consult-buffer)]
+      ("b" "Switch buffer" consult-buffer)
+      ("B" "Switch buffer other" consult-buffer-other-window)]
      ["Manage"
       ("k" "Kill buffer" kill-current-buffer)
       ("K" "Kill other buffers" kill-buffer)]])
@@ -326,9 +328,10 @@ From =recentf-mode=:
     [["Switch / Find"
       ("p" "Switch project" project-switch-project)
       ("f" "Find file"      project-find-file)
-      ("b" "Switch buffer"  project-switch-to-buffer)]
+      ("b" "Switch buffer"  consult-project-buffer)] ;; or project-switch-to-buffer
      ["Search"
       ("s" "Search (rg/ag)" consult-ripgrep)
+      ("l" "Search line"    consult-line-multi)
       ("g" "Grep"           project-find-regexp)]
      ["Build / Run"
       ;; adapt these to TAPL/OCaml projects later
@@ -341,57 +344,45 @@ From =recentf-mode=:
 
 ** Org transient
 #+begin_src emacs-lisp
-  (use-package org
-    :after org ;; because we mention "org" functions
-    :hook (org-mode . my/org-mode-setup)
-    :config
-    (transient-define-prefix my/org-transient ()
-      "Org actions."
-      [["Capture / TODO"
-        ("c" "Capture" org-capture)
-        ("t" "Todo"    org-todo)
-        ("s" "Schedule" org-schedule)]
-       ["Structure"
-        ("m" "Meta-return" org-meta-return)
-        ("h" "Promote"     org-do-promote)
-        ("l" "Demote"      org-do-demote)
-        ("u" "Move up"     org-move-subtree-up)
-        ("d" "Move down"   org-move-subtree-down)]
-       ["Navigate"
-        ("a" "Agenda" org-agenda)
-        ("g" "Goto heading" consult-org-heading)]]))
+  (transient-define-prefix my/org-transient ()
+    "Org actions."
+    [["Capture / TODO"
+      ("c" "Capture" org-capture)
+      ("t" "Todo"    org-todo)
+      ("s" "Schedule" org-schedule)]
+     ["Structure"
+      ("m" "Meta-return" org-meta-return)
+      ("h" "Promote"     org-do-promote)
+      ("l" "Demote"      org-do-demote)
+      ("u" "Move up"     org-move-subtree-up)
+      ("d" "Move down"   org-move-subtree-down)]
+     ["Navigate"
+      ("a" "Agenda" org-agenda)
+      ("g" "Goto heading" consult-org-heading)]])
 
-  (defun my/org-mode-setup ()
-    ;; in org-mode, under leader, "o" calls this transient.
-    (my/leader
-      :keymaps 'org-mode-map
-      "o" '(my/org-transient :which-key "org menu")))
+  (my/leader
+    :keymaps 'org-mode-map
+    "o" '(my/org-transient :which-key "org"))
 #+end_src
 
 ** Org-roam transient
 #+begin_src emacs-lisp
-  (use-package org-roam
-    :after org-roam
-    :hook (org-roam-mode . my/org-roam-mode-setup)
-    :config
-    (transient-define-prefix my/roam-transient ()
-      "Org-roam commands."
-      [["Find / Insert"
-        ("f" "Find node"   org-roam-node-find)
-        ("i" "Insert node" org-roam-node-insert)]
-       ["Dailies"
-        ("t" "Today"   org-roam-dailies-goto-today)
-        ("y" "Yesterday" org-roam-dailies-goto-yesterday)
-        ("d" "Date"    org-roam-dailies-goto-date)]
-       ["Graph / Utils"
-        ("g" "Graph" org-roam-graph)
-        ("r" "Refresh DB" org-roam-db-sync)]]))
+  (transient-define-prefix my/roam-transient ()
+    "Org-roam commands."
+    [["Find / Insert"
+      ("f" "Find node"   org-roam-node-find)
+      ("i" "Insert node" org-roam-node-insert)]
+     ["Dailies"
+      ("t" "Today"   org-roam-dailies-goto-today)
+      ("y" "Yesterday" org-roam-dailies-goto-yesterday)
+      ("d" "Date"    org-roam-dailies-goto-date)]
+     ["Graph / Utils"
+      ("g" "Graph" org-roam-graph)
+      ("r" "Refresh DB" org-roam-db-sync)]])
 
-  (defun my/org-roam-mode-setup ()
-    ;; Optional: local leader in Org-roam buffers (or org-mode-map if you prefer)
-    (my/leader
-      :keymaps 'org-roam-mode-map
-      "r" '(my/roam-transient :which-key "roam menu")))
+  (my/leader
+    :keymaps 'org-mode-map
+    "r" '(my/roam-transient :which-key "roam"))
 #+end_src
 
 ** Global hub transient
@@ -600,10 +591,7 @@ Global modes that do not come with Emacs.
     :demand t ; Demand because we bind keys below and want them always available
     :custom
     (keycast-mode-line-insert-after 'mode-line-buffer-identification)
-    (keycast-mode-line-remove-tail-elements nil)
-    :bind (
-           :map my-toggle-map
-                ("k" . keycast-mode-line-mode)))
+    (keycast-mode-line-remove-tail-elements nil))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -825,19 +813,7 @@ Consult provides search and navigation commands.
     :hook
     ;; Enable automatic preview at point in the *Completions* buffer.
     (completion-list-mode . consult-preview-at-point-mode)
-    :bind (("C-y" . consult-yank-from-kill-ring)
-           :map my-search-map
-           ("l" . consult-line)             ; Search (l)ine in current buffer
-           ("L" . consult-line-multi)       ; Seach across project buffers
-           ("i" . consult-imenu)            ; Seach imenu (i)tems
-           ("f" . consult-find)             ; Find file in project
-           ("b" . consult-buffer)           ; Find a buffer
-           ("m" . consult-kmacro)           ; Find a keyboard macro
-           ("B" . consult-project-buffer)
-           ("o" . consult-outline)
-           ("e" . consult-compile-error)
-           :map my-other-map
-           ("b" . consult-buffer-other-window)))
+    :bind (("C-y" . consult-yank-from-kill-ring)))
 #+end_src
 
 Orderless allows me to search word parts in any order.
@@ -1085,9 +1061,6 @@ Configurations for the compilation buffer:
                     (rainbow-delimiters-depth-6-face    . "peach puff")))
       (set-face-attribute (car face) nil
                           :foreground (cdr face)))
-
-    :bind (:map my-toggle-map
-                ("r" . rainbow-delimiters-mode))
 
     :hook
     (emacs-lisp-mode . eldoc-mode)
@@ -1879,9 +1852,7 @@ dirs.
     :straight nil ; Built-in
     :commands (dired dired-jump)
     :bind (
-           ("C-x C-j" . dired-jump)
-           :map my-other-map
-           ("f" . find-file-other-window))
+           ("C-x C-j" . dired-jump))
     :custom
     (delete-by-moving-to-trash t)
     (trash-directory "~/trash/")
