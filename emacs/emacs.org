@@ -3,35 +3,25 @@
 
 * Globals
 
+Custom file:
 #+begin_src emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+end_src
 
-Set some global default values. We use only =setq-default= in case a
-configuration is "buffer local".
-
+Some /globals/:
 #+begin_src emacs-lisp
-  (setq-default
+  (setq
    inhibit-startup-message t
-
-   ;; Keep point at the same screen position when scrolling up and down pages.
-   scroll-preserve-screen-position t
-
-   ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
-   fill-column 80
-
    visible-bell t
 
    ;; Put all backup files here (those that end on a ~).
    backup-directory-alist '(("" . "~/.emacs.d/backup"))
 
-   ;; Smoother scrolling from
-   ;; https://www.emacswiki.org/emacs/SmoothScrolling
+   ;; Smoother scrolling from: https://www.emacswiki.org/emacs/SmoothScrolling
    scroll-step 1
    scroll-conservatively 10000
-   ;; In number of lines
-   scroll-margin 20
+   scroll-margin 20 ;; In number of lines
 
    ;; Disable
    auto-save-default nil
@@ -67,13 +57,23 @@ configuration is "buffer local".
    ;; Focus on help window
    help-window-select t
 
+   ;; Keep point at the same screen position when scrolling up and down pages.
+   scroll-preserve-screen-position t)
+#+end_src
+
+Some /buffer-local/ defaults:
+#+begin_src emacs-lisp
+  (setq-default
+   ;; Regardless of whether auto-fill is enabled, we always have 80 columns.
+   fill-column 80
+
    ;; Relative line numbers
-   display-line-numbers 'relative)
+   ;; display-line-numbers 'relative
+   )
 #+end_src
 
 Personal key maps:
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (defvar-keymap my-other-map)
   (keymap-set global-map "C-o" my-other-map)
 
@@ -86,14 +86,12 @@ Personal key maps:
 #+end_src
 
 By default, we must hit escape three times to quit anything. Make it only once:
-
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
 Some global hooks:
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; In all modes, delete trailing whitespaces before saving.
   (add-hook 'before-save-hook #'delete-trailing-whitespace)
 #+end_src
