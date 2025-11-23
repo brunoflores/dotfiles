@@ -321,6 +321,35 @@ From =recentf-mode=:
     "b" '(my/buffers-transient :which-key "buffers"))
 #+end_src
 
+** OCaml
+#+begin_src emacs-lisp
+  (defun my/dune--compile (cmd)
+    "Run dune CMD with `compile' in the current `default-directory'."
+    (compile (format "dune %s" cmd)))
+
+  (defun my/dune-init-project (name dir)
+    "Initialize a dune project NAME in DIR, using a relative path if possible."
+    (interactive
+     (let* ((abs-dir (directory-file-name
+  		    (read-directory-name "Directory: " default-directory)))
+  	  (rel-dir (file-relative-name abs-dir default-directory)))
+       (list
+        (read-string
+         "Project name: "
+         (file-name-nondirectory
+  	(directory-file-name default-directory)))
+        rel-dir)))
+    (compile (format "dune init project %s %s" name dir)))
+
+  (transient-define-prefix my/ocaml-dune-transient ()
+    "OCaml/Dune commands"
+    [["Init"
+      ("n" "Init proj here" my/dune-init-project)]])
+
+  (my/leader
+    "d" '(my/ocaml-dune-transient :which-key "ocaml/dune"))
+#+end_src
+
 ** Project transient
 #+begin_src emacs-lisp
   (transient-define-prefix my/project-transient ()
