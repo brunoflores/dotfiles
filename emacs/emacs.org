@@ -1335,9 +1335,6 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     ;; Better in-buffer preview engine
     (org-preview-latex-default-process 'dvisvgm)
 
-    ;; LaTeX packages for inline rendering
-    (org-latex-packages-alist '("" "tikz-cd"))
-
     ;; Agenda:
     (org-agenda-start-with-log-mode t)
     ;; Use current time with completing a task
@@ -1368,6 +1365,10 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 
     :config
     (org-mode-font-setup)
+
+    ;; LaTeX packages for inline rendering
+    (add-to-list 'org-latex-packages-alist '("" "tikz-cd"))
+
     ;; Remove the default underline style from elipsis.
     (set-face-underline 'org-ellipsis nil))
 
