@@ -389,7 +389,7 @@ From =recentf-mode=:
     "b" #'consult-buffer)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package key-chord
      :after evil
      :config
@@ -404,14 +404,12 @@ From =recentf-mode=:
 #+end_src
 
 The following is now replaced by =ace-window=:
-
 #+begin_src emacs-lisp :tangle no
   ;; Shortcut to switch between two buffers.
   (global-set-key (kbd "M-o")  'mode-line-other-buffer)
 #+end_src
 
 Allow movement between windows using SHIFT plus arrow:
-
 #+begin_src emacs-lisp :tangle no
   (windmove-default-keybindings)
 #+end_src
@@ -469,27 +467,20 @@ Global modes that do not come with Emacs.
     :config
     (evil-mode t)
 
-    ;; (keymap-set global-map "SPC" space-map)
-    ;; (keymap-set evil-normal-state-map "SPC" space-map)
+    ;; evil-define-key delays execution until keymap is loaded.
+    (evil-define-key 'insert vertico-map (kbd "C-j") 'vertico-next)
+    (evil-define-key 'insert vertico-map (kbd "C-k") 'vertico-previous)
 
-    (keymap-set evil-normal-state-map "," 'major-mode-transient)
-
-    ;; (keymap-set evil-visual-state-map "C-w" #'kill-region)
-    ;; (keymap-set evil-visual-line-state-map "C-w" #'kill-region)
-    ;; (keymap-set evil-normal-state-map "C-w" #'kill-region)
-
-    (add-hook 'post-command-hook #'mode-line-render)
-
-    )
+    (add-hook 'post-command-hook #'mode-line-render))
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package evil-collection
     :after evil
+    :demand t
     :custom
     (evil-collection-setup-minibuffer t) ; Opt-in
     (evil-collection-outline-bind-tab-p t) ; tab maps to outline-cycle
-    :demand t
     :config
     (evil-collection-init))
 #+end_src
@@ -705,13 +696,10 @@ Ivy is disabled at the moment in favour of Vertico.
 #+begin_src emacs-lisp
   (use-package vertico
     :demand t
-    :after evil-collection ; We override key-maps below
     :hook
     ;; Works with =file-name-shadow-mode= enabled.
     (rfn-eshadow-update-overlay . vertico-directory-tidy)
     :config
-    (evil-define-key 'insert vertico-map (kbd "C-j") 'vertico-next)
-    (evil-define-key 'insert vertico-map (kbd "C-k") 'vertico-previous)
     (vertico-mode t))
 #+end_src
 
