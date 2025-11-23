@@ -1335,6 +1335,9 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     ;; Better in-buffer preview engine
     (org-preview-latex-default-process 'dvisvgm)
 
+    ;; LaTeX packages for inline rendering
+    ;; (add-to-list 'org-latex-packages-alist '("" "tikz-cd"))
+
     ;; Agenda:
     (org-agenda-start-with-log-mode t)
     ;; Use current time with completing a task
