@@ -492,7 +492,12 @@ From =recentf-mode=:
     [["Find / Insert"
       ("c" "Capture node"   org-roam-capture)
       ("f" "Find node"   org-roam-node-find)
-      ("i" "Insert node" org-roam-node-insert)]
+      ("i" "Insert node" org-roam-node-insert)
+      ("s" "Search nodes" consult-org-roam-search)
+      ("l" "Forward links" consult-org-roam-forward-links)
+      ("b" "Backlinks" consult-org-roam-backlinks)
+      ("B" "Backlinks recursive" consult-org-roam-backlinks-recursive)
+      ]
      ["Dailies"
       ("t" "Today"   org-roam-dailies-goto-today)
       ("y" "Yesterday" org-roam-dailies-goto-yesterday)
