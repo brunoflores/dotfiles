@@ -1451,6 +1451,10 @@ the actual file unchanged:
   (setq-default org-image-actual-width nil)
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package org-modern)
+#+end_src
+
 ** Org Roam
 
 #+begin_src emacs-lisp
