@@ -1365,6 +1365,7 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                 ("M-p" . org-move-subtree-up))
     :custom
     (org-directory "~/devel/www-roadmap/org")
+    (org-preview-latex-image-directory "~/.emacs.d/.local/cache/org/latex/")
 
     (org-ellipsis " …")
     (org-hide-emphasis-markers t)
