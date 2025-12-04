@@ -1405,12 +1405,15 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 
     ;; Capture templates
     (org-capture-templates
-     '(("t" "Task" entry (file "org/inbox.org")
-        "* PLAN %?\n%U\n:tags:\n")
-       ("p" "Pattern" entry (file "org/patterns.org")
-        "* %^{Pattern} :pattern:\nContext:\nProblem:\nSolution:\nExample:\nRefs:\n%U\n")
-       ("b" "Blog idea" entry (file "org/blog.org")
-        "* %^{Title} :blog:\n#+hugo_section: posts\n#+hugo_tags: [\"pattern\",\"go\",\"ocaml\"]\n#+date: %<%Y-%m-%d>\n\nAngle:\nExample code:\nTakeaway:\n")))
+     '(
+       ("n" "New note (with Denote)" plain
+        (file denote-last-path)
+        #'denote-org-capture
+        :no-save t
+        :immediate-finish nil
+        :kill-buffer t
+        :jump-to-captured t)
+       ))
 
     (org-todo-keywords '((sequence "TODO(t)" "|" "CANCEL(c!)" "DONE(d!)")))
 
@@ -1669,6 +1672,47 @@ I prefer ~citar-org-roam~:
   (use-package flyspell)
 #+end_src
 
+** Denote
+#+begin_src emacs-lisp
+  (use-package denote
+    :hook
+    (
+     ;; Apply colours to Denote names in Dired.  This applies to all
+     ;; directories.  Check `denote-dired-directories' for the specific
+     ;; directories you may prefer instead.  Then, instead of
+     ;; `denote-dired-mode', use `denote-dired-mode-in-directories'.
+     (dired-mode . denote-dired-mode)
+     )
+    :custom
+    ;; Denote adds "%l": a “backlink to where I came from” - we remove that here:
+    (denote-org-capture-specifiers "%?")
+    :config
+    (setq denote-directory (expand-file-name "~/devel/www-roadmap/denote"))
+
+    ;; Pick dates, where relevant, with Org's advanced interface:
+    (setq denote-date-prompt-use-org-read-date t)
+
+    ;; Keywords
+    (setq denote-infer-keywords t)
+    (setq denote-sort-keywords t)
+    (setq denote-known-keywords '("concept"))
+
+    ;; Automatically rename Denote buffers when opening them so that
+    ;; instead of their long file name they have, for example, a literal
+    ;; "[D]" followed by the file's title.  Read the doc string of
+    ;; `denote-rename-buffer-format' for how to modify this.
+    (denote-rename-buffer-mode 1))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package consult-denote
+    :config
+    (consult-denote-mode 1))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package denote-org)
+#+end_src
 ** Latex
 
 #+begin_src emacs-lisp :tangle no
