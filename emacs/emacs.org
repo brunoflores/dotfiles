@@ -581,7 +581,10 @@ Global modes that do not come with Emacs.
     :bind
     (("C-." . embark-act)))
 
-  (use-package embark-consult)
+  (use-package embark-consult
+    :after (embark consult)
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
 #+begin_src emacs-lisp
