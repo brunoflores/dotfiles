@@ -314,12 +314,19 @@ From =recentf-mode=:
     (let* (;; Always-present global columns
   	 (global-groups
   	  '([["Files"
-                ("f" "Files"   my/files-transient)
-                ("b" "Buffers" my/buffers-transient)]
+  	      ("f" "Files"   my/files-transient)
+  	      ("b" "Buffers" my/buffers-transient)
+  	      ("B" "Bookmarks" my/bookmarks-transient)
+  	      ]
                ["Projects"
                 ("p" "Project" my/project-transient)]
+               ["Denote"
+                ("n" "Denote" my/denote-transient)]
   	     ["Git"
-                ("g" "Git" my/git-transient)]]))
+  	      ("g" "Git" my/git-transient)]
+  	     ["Extended"
+  	      ("SPC" "command" execute-extended-command)]
+  	     ]))
 
            ;; Mode-specific columns
            (mode-groups
@@ -362,6 +369,37 @@ From =recentf-mode=:
     (my/hub-transient))
 #+end_src
 
+** Denote transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/denote-transient ()
+    "Denote-related commands."
+    [["Denote"
+      ("n" "denote" denote)
+
+      ("r" "rename-file" denote-rename-file
+       :if-not-mode dired-mode)
+      ("R" "rename-file-using-front-matter" denote-rename-file-using-front-matter
+       :if-not-mode dired-mode)
+
+      ("l" "link" denote-link)
+      ("L" "add-links" denote-add-links)
+      ("b" "backlinks" denote-backlinks)
+      ("d" "dired" denote-dired)
+      ("g" "grep" denote-grep)
+      ]
+     ["Dired"
+      ("r" "rename-files" denote-dired-rename-files
+       :if-mode dired-mode)
+      ("R" "rename-marked-files-using-front-matter" denote-dired-rename-marked-files-using-front-matter
+       :if-mode dired-mode)
+      ("i" "link-marked-notes" denote-dired-link-marked-notes
+       :if-mode dired-mode)
+      ("k" "rename-marked-files-with-keywords"
+       denote-dired-rename-marked-files-with-keywords
+       :if-mode dired-mode)
+      ]])
+#+end_src
+
 ** Files and buffers transients
 #+begin_src emacs-lisp
   (transient-define-prefix my/files-transient ()
@@ -382,6 +420,16 @@ From =recentf-mode=:
      ["Manage"
       ("k" "Kill buffer" kill-current-buffer)
       ("K" "Kill other buffers" kill-buffer)]])
+#+end_src
+
+** Bookmarks transients
+#+begin_src emacs-lisp
+  (transient-define-prefix my/bookmarks-transient ()
+    "Bookmarks-related commands."
+    [["Find"
+      ("b" "Consult" consult-bookmark)
+      ]
+     ])
 #+end_src
 
 ** OCaml transient
@@ -523,7 +571,6 @@ From =recentf-mode=:
      (key-chord-define-global "df" 'entry-transient)
      (key-chord-mode t))
 #+end_src
-
 
 * Global modes
 
