@@ -1364,7 +1364,8 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
                 ("M-n" . org-move-subtree-down)
                 ("M-p" . org-move-subtree-up))
     :custom
-    (org-directory "~/devel/www-roadmap/org")
+    (org-directory "~/devel/www-roadmap/denote")
+    (org-default-notes-file (expand-file-name "inbox.org" org-directory))
     (org-preview-latex-image-directory "~/.emacs.d/.local/cache/org/latex/")
 
     (org-ellipsis " …")
@@ -1406,13 +1407,19 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     ;; Capture templates
     (org-capture-templates
      '(
-       ("n" "New note (with Denote)" plain
+       ("f" "Fleeting note" item
+        (file+headline org-default-notes-file "Notes")
+        "- %?")
+       ("p" "Permanent note" plain
         (file denote-last-path)
         #'denote-org-capture
         :no-save t
         :immediate-finish nil
         :kill-buffer t
         :jump-to-captured t)
+       ("t" "New task" entry
+        (file+headline org-default-notes-file "Tasks")
+        "* TODO %i%?")
        ))
 
     (org-todo-keywords '((sequence "TODO(t)" "|" "CANCEL(c!)" "DONE(d!)")))
