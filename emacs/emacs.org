@@ -1478,21 +1478,21 @@ the actual file unchanged:
 
     (org-roam-dailies-capture-templates
      '(("d" "default" entry "* %<%I:%M %p>: %?"
-        :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+        :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
 
     (org-roam-capture-templates
      `(
-       ("d" "Default" plain
+       ("c" "Concept" plain
         "%?"
         :target (file+head
-                 "concepts/%<%Y%m%d%H%M%S>-${slug}.org"
+                 "notes/concepts/%<%Y%m%d%H%M%S>-${slug}.org"
                  "#+title: ${title}\n#+filetags: :concept:\n#+created: %U\n")
         :unnarrowed t)
 
        ("b" "Book note" plain
         "%?"
         :target (file+head
-                 "sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
+                 "notes/sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
                  "#+title: ${title}\n#+filetags: :reading:book:\n#+created: %U\n")
         :unnarrowed t)
 
@@ -1500,7 +1500,7 @@ the actual file unchanged:
         "%?"
         :target (file+head
                  ;; filename includes citekey + a chapter slug
-                 "sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
+                 "notes/sources/%(my/ror-citekey)-%<%Y%m%d>-${slug}.org"
                  "#+title: ${title}\n#+filetags: :reading:chapter:\n#+created: %U\n")
         :unnarrowed t)
        ))
