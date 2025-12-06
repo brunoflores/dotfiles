@@ -1306,16 +1306,22 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
 
 #+begin_src emacs-lisp
   ;; 1. Define a face (optional but nice)
-  (defface my/org-todo-yellow-bold
+  (defface my/org-highlight-todo
     '((t :weight bold :foreground "yellow"))
     "Face for highlighted TODO in org buffers.")
+  (defface my/org-highlight-bold
+    '((t :weight bold))
+    "Face for highlighted 'intution' in org buffers.")
 
   ;; 2. Define a setup function
-  (defun my/org-extra-font-lock ()
+  (defun my/org-extra-highlights ()
+    ;; Make font-lock regex matching case-insensitive in this buffer
+    (setq-local font-lock-keywords-case-fold-search t)
+
     (font-lock-add-keywords
-     nil ;; nil = current major mode
-     '(("\\bTODO\\b"
-        0 'my/org-todo-yellow-bold t))))
+     nil
+     '(("^[^*].*\\bintuition\\b" 0 'my/org-highlight-bold t)
+       ("\\bTODO\\b" 0 'my/org-highlight-todo t))))
 
   (defun my/org-latex-scale ()
     ;; Start from current options and adjust :scale
@@ -1358,7 +1364,7 @@ opam install ocaml-lsp-server ocamlformat merlin tuareg utop ocp-index
     :hook
     (org-mode . org-mode-setup)
     (org-mode . git-gutter-mode)
-    (org-mode . my/org-extra-font-lock)
+    ;; (org-mode . my/org-extra-highlights)
     (org-mode . my/org-latex-scale)
     :bind (:map org-mode-map
                 ("M-n" . org-move-subtree-down)
