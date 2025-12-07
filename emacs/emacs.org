@@ -322,6 +322,8 @@ From =recentf-mode=:
                 ("p" "Project" my/project-transient)]
                ["Denote"
                 ("n" "Denote" my/denote-transient)]
+               ["Citar"
+                ("c" "Citar" my/citar-transient)]
   	     ["Git"
   	      ("g" "Git" my/git-transient)]
   	     ["Extended"
@@ -367,6 +369,22 @@ From =recentf-mode=:
     (interactive)
     (my/hub-transient-define)
     (my/hub-transient))
+#+end_src
+
+** Citar transient
+#+begin_src emacs-lisp
+  (transient-define-prefix my/citar-transient ()
+    "Citar-related commands."
+    [["Citar"
+      ("c" "create note" citar-create-note)
+      ("n" "open note" citar-denote-open-note)
+      ("x" "nocite" citar-denote-nocite)
+      ("r" "add reference" citar-denote-add-reference)
+      ("R" "remove reference" citar-denote-remove-reference)
+      ("d" "dwim" citar-denote-dwim)
+      ("e" "open reference entry" citar-denote-open-reference-entry)
+      ]
+     ])
 #+end_src
 
 ** Denote transient
